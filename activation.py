@@ -8,18 +8,51 @@ Purpose: Collection of activation functions for neural networks
 import numpy as np
 
 class activation:
-    def __init__():
-        ...
-
+    @staticmethod 
     def relu(x: float) -> float:
+        """Relu activation function
+
+        Args:
+            x (float): input into the activation function
+
+        Returns:
+            float: output of the activation function
+        """
         return np.maximum(0, x)
 
+    @staticmethod 
     def sigmoid(x: float) -> float:
+        """sigmoid activation function
+
+        Args:
+            x (float): input into the activation function
+
+        Returns:
+            float: output of the activation function
+        """
         return 1/(1 + np.exp(-x))
-
+    
+    @staticmethod 
     def tanh(x: float) -> float:
-        return np.tanh(x)
+        """hyperbolic tangent activation function
 
+        Args:
+            x (float): input into the activation function
+
+        Returns:
+            float: output of the activation function
+        """
+        return np.tanh(x)
+    
+    @staticmethod 
     def softplus(x: float) -> float:
+        """softplus activation function
+
+        Args:
+            x (float): input into the activation function
+
+        Returns:
+            float: output of the activation function
+        """
         return np.log(1 + np.exp(x))
 
