@@ -5,8 +5,6 @@ Date: February 22, 2025
 Purpose: Defines a single neuron in a neural network
 """
 
-
-import Activation
 import numpy as np
 
 class Neuron:
@@ -21,7 +19,15 @@ class Neuron:
         self.weights = weights
         self.bias = bias
 
-    def forward(self, input) -> np.array:
+    def forward(self, input) -> float:
+        """Defines how data is processed by a singular Neuron
+
+        Args:
+            input (_type_): input vector
+
+        Returns:
+            float: The biased weighted sum of the input vector values
+        """
         return np.dot(input, self.weights) + self.bias
     
     def set_weights(self, weights: np.array) -> None:
