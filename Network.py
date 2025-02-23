@@ -41,7 +41,7 @@ class Network:
 
         if self.symmetrical:
             # He-et-al weight initialization (used ONLY with ReLU activation function)
-            # add 1 to the depth dimmension so that a set of weights is created for the output layer
+            # add 1 to the depth dimension so that a set of weights is created for the output layer
             starting_weights = np.random.randn(hidden_width, hidden_depth+1) * np.sqrt(2/(hidden_width))
     
             # create input layer (one passive neuron for every feature in the input vector).
