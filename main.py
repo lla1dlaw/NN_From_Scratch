@@ -7,7 +7,7 @@ Purpose: driver for the neural network file
 
 import numpy as np
 import pandas as pd
-import activation 
+import matplotlib as plot
 
 def main():
     ...
