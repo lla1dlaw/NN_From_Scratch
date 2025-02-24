@@ -33,6 +33,10 @@ class Neuron:
     def set_weights(self, weights: np.array) -> None:
         self.weights = weights
 
+    
+
+    
+
 
 
 

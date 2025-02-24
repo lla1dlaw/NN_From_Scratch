@@ -8,6 +8,21 @@ Purpose: Collection of activation functions for neural networks
 import numpy as np
 
 class Activation:
+
+    @staticmethod
+    def softmax(x: np.array) -> np.array:
+        """Softmax activation function (used after the output layer)
+
+        Args:
+            x (np.array): The vector of values that needs to be converted into a probability distribution
+
+        Returns:
+            np.array: Probability distribution representing the network's confidence in each output value
+        """
+        # leverage numpy's vectorized operations to increase efficiency and speed of calculation
+        stable_vector = np.exp(x - np.max(x)) # subtract the largest value from every element in the array (prevents overflow/underflow errors)
+        return stable_vector/stable_vector.sum()
+
     @staticmethod 
     def relu(x: np.array) -> np.array:
         """Relu activation over an inputted vector

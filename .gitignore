@@ -2,3 +2,5 @@
 .vscode/
 TODO.txt
 __pycache__
+Extract_Idx.py
+data/

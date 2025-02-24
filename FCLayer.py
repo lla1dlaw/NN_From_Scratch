@@ -22,8 +22,8 @@ class FCLayer:
         self.weights = starting_weights
         self.starting_bias = starting_bias
 
-        self.layer = [Neuron(starting_weights, starting_bias) for i in range(layer_width)]
-        self.layer = np.array(self.layer)
+        # initialize each neuron in the layer with its own randomly sampled set of weights to apply to the outputs of the previous layer
+        self.layer = [Neuron(weight_set, starting_bias) for weight_set in starting_weights]
 
     def forward(self, x: np.array) -> np.array:
         """Defines a forward pass through the layer and its neurons
@@ -35,6 +35,16 @@ class FCLayer:
             np.array: The processed array of all the weighted sums produced from each neuron
         """
         return np.array([neuron.forward(x) for neuron in self.layer])
+    
+
+    ### fixx LATER
+    def save_weights(self, path: str) -> None:
+        """Saves the weight numpy array in csv format
+
+        Args:
+            path (str): path to save file
+        """
+        np.savetxt(path, self.weights(), fmt='%d', delimiter=',', newline=",")
 
         
 
