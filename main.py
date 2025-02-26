@@ -8,7 +8,6 @@ Purpose: driver for the neural network file
 import numpy as np
 import pandas as pd
 import matplotlib as plot
-from Neuron import Neuron
 
 def load_data(path: str):
     """Loads csv data into a 2d numpy ndarray
@@ -21,15 +20,17 @@ def load_data(path: str):
     """
     return pd.read_csv(path).values
     
-    
-    
-
 
 def main():
-    arr = load_data(".\\data\\mnist_test.csv")[0]
-    print(arr)
-    print(arr.shape)
-    np.savetxt('test.csv', arr, fmt='%d', delimiter=',', newline=",")
+    train_data: np.ndarray = load_data(".\\data\\mnist_train.csv")
+    test_data: np.ndarray = load_data(".\\data\\mnist_test.csv")
+
+    print("Successfully Loaded Data.")
+    print(f"Training Data Shape: {train_data.shape}")
+    print(f"Testing Data Shape: {test_data.shape}")
+
+
+
 
 if __name__ == "__main__":
     main()

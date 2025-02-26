@@ -34,18 +34,13 @@ class Network:
         starting_weights = []
 
         if self.symmetrical:
-            # He-et-al weight initialization (used ONLY with ReLU activation function)
-            # add 1 to the depth dimension so that a set of weights is created for the output layer
-            first_layer_starting_weights = np.random.randn(input_size, hidden_width) * np.sqrt(2/(input_size))
-            starting_weights = np.random.randn(hidden_width, hidden_width, hidden_depth) * np.sqrt(2/(hidden_width))
-            output_layer_starting_weights = np.random.randn(hidden_width, output_size) * np.sqrt(2/(output_size))
             
             # first layer takes the input size as as the number of neurons
-            self.hidden_layers.append(FCLayer(input_size, hidden_width, first_layer_starting_weights, starting_bias=starting_bias))
+            self.hidden_layers.append(FCLayer(input_size, hidden_width))
             for i in range(hidden_depth):
-                self.hidden_layers.append(FCLayer(hidden_width, hidden_width, starting_weights[i], starting_bias=starting_bias))
+                self.hidden_layers.append(FCLayer(hidden_width, hidden_width))
             # output layer takes
-            self.output_layer = FCLayer(hidden_width, output_size, output_layer_starting_weights, starting_bias=starting_bias)
+            self.hidden_layers.append(FCLayer(hidden_width, output_size))
         
 
     def load_weights(self, path: str) -> None:
