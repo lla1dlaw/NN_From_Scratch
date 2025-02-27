@@ -11,36 +11,34 @@ import Activation
 
 
 class Network:
-    def __init__(self, input_size: int, output_size: int, hidden_depth: int, symmetrical: bool = True, hidden_width: int = 10) -> None:
+    def __init__(self, input_size: int, output_size: int, hidden_widths: list[int]) -> None:
         """Constructor for Network Class
 
         Args:
             input_size (int): the dimensionality of input vector
             output_size (int): the dimensionality of output vector 
-            hidden_depth (int): the depth of the network
-            symmetrical (bool, optional): Defines whether the width of network hidden layers are to be the same size. Defaults to True.
-            hidden_width (int, optional): Defines the width of each hidden layer in a symmetrical network. Defaults to 10.
+            hidden_widths (list[int]): describes the shape of the network. Each layer's width is represented by each integer value.
+
+        Note:
+            The depth of the network is derived from the length of the hidden_widths list
         """
 
         self.input_size = input_size
         self.output_size = output_size
-        self.hidden_depth = hidden_depth
-        self.symmetrical = symmetrical
-        self.hidden_width = hidden_width
+        self.hidden_widths = hidden_widths
         self.hidden_layers = []
-
-        # starting values for every neuron
-        starting_bias = 0
-        starting_weights = []
-
-        if self.symmetrical:
             
-            # first layer takes the input size as as the number of neurons
-            self.hidden_layers.append(FCLayer(input_size, hidden_width))
-            for i in range(hidden_depth):
-                self.hidden_layers.append(FCLayer(hidden_width, hidden_width))
-            # output layer takes
-            self.hidden_layers.append(FCLayer(hidden_width, output_size))
+        # first layer takes the input size as as the number of neurons
+        self.hidden_layers.append(FCLayer(input_size, hidden_widths[0]))
+
+        # previous_layer_width is the input size for the current layer
+        previous_layer_width = hidden_widths[0]
+        for width in hidden_widths[1:-1]:
+            self.hidden_layers.append(FCLayer(input_size=previous_layer_width, layer_width=width))
+            previous_layer_width = width
+        
+        # output layer takes
+        self.hidden_layers.append(FCLayer(hidden_widths[-1], output_size))
         
 
     def load_weights(self, path: str) -> None:
@@ -59,14 +57,14 @@ class Network:
         """
 
 
-    def forward(self, x: np.array) -> int:
+    def forward(self, x: np.array) -> np.ndarray:
         """Defines a forward pass over the network
 
         Args:
             x (np.array): The inputted feature vector
 
         Returns:
-            int: Index of the neuron with the highest confidence in the output layer.
+            np.ndarray: The output vector from the network. 
         """
         for layer in self.hidden_layers:
             x = layer.forward(x)
@@ -75,4 +73,4 @@ class Network:
         x = self.output_layer.forward(x)
         x = Activation.softmax(x)
 
-        return np.argmax(x)
+        return x
