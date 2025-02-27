@@ -30,22 +30,22 @@ def train_network():
     
 
 def main():
-    
-    # load dataset
-    dataset.load_training()
-    dataset.load_testing()
+    # load data
+    (train_images_raw, train_labels_raw), (test_images_raw, test_labels_raw) = tf.keras.datasets.mnist.load_data()
+    train_images = np.array(train_images_raw)
+    train_labels = np.array(train_labels_raw)
+
+    test_images = np.array(test_images_raw)
+    test_labels = np.array(test_labels_raw)
+
+    print("Successfully Loaded Data.\n")
+    print(f"Train Images Shape: {train_images.shape}")
+    print(f"Train Labels Shape: {train_labels.shape}")
+    print(f"Test Images Shape: {test_images.shape}")
+    print(f"Test Labels Shape: {test_labels.shape}")
 
 
     
-    train_data: np.ndarray = load_data(".\\data\\mnist_train.csv")
-    test_data: np.ndarray = load_data(".\\data\\mnist_test.csv")
-
-    print("Successfully Loaded Data.")
-    print(f"Training Data Shape: {train_data.shape}")
-    print(f"Testing Data Shape: {test_data.shape}")
-
-
-
 
 
 
