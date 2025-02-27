@@ -32,7 +32,7 @@ class FCLayer:
             self.weights = starting_weights
 
         # bias weights are the last element of a given set of weights
-        self.weights = np.hstack((self.weights, np.full(layer_width, starting_bias)))
+        self.weights = np.hstack((self.weights, np.full((1, layer_width), starting_bias)))
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """Defines a forward pass through the layer and its neurons

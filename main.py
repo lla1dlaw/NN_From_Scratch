@@ -7,9 +7,11 @@ Purpose: Driver for MNist prediction using Neural networks
 
 import numpy as np
 import pandas as pd
-import matplotlib as plot
-from Network import Network
+import matplotlib.pyplot as plt
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
 import tensorflow as tf
+from Network import Network
 
 def load_data(path: str):
     """Loads csv data into a 2d numpy ndarray
@@ -31,21 +33,24 @@ def train_network():
 
 def main():
     # load data
-    (train_images_raw, train_labels_raw), (test_images_raw, test_labels_raw) = tf.keras.datasets.mnist.load_data()
-    train_images = np.array(train_images_raw)
-    train_labels = np.array(train_labels_raw)
+    (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
 
-    test_images = np.array(test_images_raw)
-    test_labels = np.array(test_labels_raw)
+    # labels are the second item in each pair
+    training_pairs = list(zip(train_images, train_labels))
+    testing_pairs = list(zip(test_images, test_labels))
 
-    print("Successfully Loaded Data.\n")
-    print(f"Train Images Shape: {train_images.shape}")
-    print(f"Train Labels Shape: {train_labels.shape}")
-    print(f"Test Images Shape: {test_images.shape}")
-    print(f"Test Labels Shape: {test_labels.shape}")
+    # define network
+    input_size = training_pairs[0][0].size # should be 784 for 28 * 28 images in mnist
+    num_outputs = 10 # 10 possible outputs 
+    network_dimensions = [5]*3 # 5x3 symmetrical network
 
+    net = Network(input_size, num_outputs, network_dimensions)
 
     
+    
+
+
+
 
 
 
