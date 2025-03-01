@@ -31,8 +31,7 @@ class FCLayer:
         else:
             self.weights = starting_weights
 
-        # bias weights are the last element of a given set of weights
-        self.weights = np.hstack((self.weights, np.full((1, layer_width), starting_bias)))
+        self.biases = np.array([[0] for i in range(self.input_size)])
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """Defines a forward pass through the layer and its neurons
@@ -46,19 +45,9 @@ class FCLayer:
 
         # append the value 1 to the end of the input array
         # This value is then multiplied by the bias in the weight matrix
-        input_vector = np.hstack(x, np.full(1, 1)) 
-        return np.dot(input_vector, self.weights)
-    
-
-    ### fix LATER
-    def save_weights(self, path: str) -> None:
-        """Saves the weight numpy array in csv format
-
-        Args:
-            path (str): path to save file
-        """
-        np.savetxt(path, self.weights(), fmt='%d', delimiter=',', newline=",")
-
+        bias_placeholder = np.array([[1] for i in range(self.input_size)])
+        input_vector = np.hstack((x, bias_placeholder))
+        return np.dot(input_vector, np.hstack((self.weights, self.biases)))
     
     def initialize_starting_weights(self) -> None:
         """Generates randomly sampled 2d numpy ndarray starting weights using 

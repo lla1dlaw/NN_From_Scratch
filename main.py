@@ -29,6 +29,18 @@ def train_network():
     ...
 
 
+
+def show_number(image: np.ndarray, predicted_label: int, actual_label: int) -> None:
+    """Displays a graphical representation of the supplied image with the associated labels.
+
+    Args:
+        image (np.ndarray): 2d array of pixels to display.
+        predicted_label (int): Label that the network assigns to the image.
+        actual_label (int): The true label for the image.
+    """
+    plt.title(f"Predicted Label: {predicted_label}\nTrue Label: {actual_label}")
+    plt.imshow(image, cmap='gray')
+    plt.show()
     
 
 def main():
@@ -45,17 +57,7 @@ def main():
     network_dimensions = [5]*3 # 5x3 symmetrical network
 
     net = Network(input_size, num_outputs, network_dimensions)
-
     
-    
-
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
     main()

@@ -39,6 +39,7 @@ class Network:
         
         # output layer takes
         self.hidden_layers.append(FCLayer(hidden_widths[-1], output_size))
+        print("Network successfully initialized.")
         
 
     def load_weights(self, path: str) -> None:
@@ -47,7 +48,7 @@ class Network:
         Args:
             path (str): The path to the file that contains the weights
         """
-        ...
+        
 
     def save_weights(self, path: str) -> None:
         """Saves the current weights of a network to the specified path
