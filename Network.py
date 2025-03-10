@@ -8,6 +8,7 @@ Purpose: A neural network
 from FCLayer import FCLayer
 import numpy as np
 import Activation
+import pandas as pd 
 
 
 class Network:
@@ -40,14 +41,17 @@ class Network:
         # output layer takes
         self.hidden_layers.append(FCLayer(hidden_widths[-1], output_size))
         print("Network successfully initialized.")
-        
 
-    def load_weights(self, path: str) -> None:
+
+    def load_weights_biases(self, path: str) -> None:
         """Loads and sets the model's weights and bias values
 
         Args:
             path (str): The path to the file that contains the weights
         """
+        for i, layer in enumerate(self.hidden_layers):
+            layer.set_weights(pd.read_csv(f"{path}\\fc{i+1}_weights.csv"))
+            layer.set_biases(pd.read_csv(f"{path}\\fc{i+1}_biases.csv"))
         
 
     def save_weights(self, path: str) -> None:
@@ -75,3 +79,15 @@ class Network:
         x = Activation.softmax(x)
 
         return x
+
+
+def main():
+    # Test the load_weights function
+    net = Network(1, 1, [5]*3)
+    print(net.load_weights(".\\model_params\\fc2_weights.csv"))
+
+if __name__ == "__main__":
+    main()
+
+
+

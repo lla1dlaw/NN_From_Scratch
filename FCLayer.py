@@ -57,7 +57,21 @@ class FCLayer:
         """
         self.weights = np.random.randn(self.input_size, self.layer_width) * np.sqrt(2/(self.input_size))
 
+    def set_weights(self, weights: np.ndarray) -> None:
+        """Sets weights for the layer.
 
+        Args:
+            weights (np.ndarray): 2d array of weight values. Each array is assigned to one unit.
+        """
         
+        self.weights = weights
 
 
+    def set_biases(self, biases: np.ndarray) -> None:
+        """Sets biases layer.
+
+        Args:
+            biases (np.ndarray): 2d array of bias values. Each array is assigned to one unit.
+        """
+        
+        self.biases = biases

@@ -57,7 +57,16 @@ def main():
     network_dimensions = [5]*3 # 5x3 symmetrical network
 
     net = Network(input_size, num_outputs, network_dimensions)
-    
+    net.load_weights_biases(".\\model_params")       
+
+    print("Evaluating network...")
+    correct = 0
+    for image, label in testing_pairs:
+        prediction = net.forward(image.flatten())
+        if prediction == label:
+            correct += 1
+
+    print(f"Network Accuracy: {correct/len(testing_pairs):.5f}") 
 
 if __name__ == "__main__":
     main()
