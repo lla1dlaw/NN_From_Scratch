@@ -17,29 +17,14 @@ class FCLayer:
             starting_bias (int, optional): The starting bias value for each of the neurons in the layer. Defaults to 0.
 
         """
-
         self.input_size = input_size
         self.layer_width = layer_width
         self.weights = None # must be explicitly initialized
+        self.biases = None # must be explicitly initialized
 
         if input_size < 1: raise ValueError("input_size must be at least 1")
         if layer_width < 1: raise ValueError("layer_width must be at least 1")
 
-
-        # one bias value for each neuron in the layer
-        self.biases = np.array([0] * self.layer_width)
-
-    def forward(self, input_vector: np.ndarray) -> np.ndarray:
-        """Defines a forward pass through the layer and its neurons
-
-        Args:
-            x (np.array): The inputted array of weighted sums from the previous layer
-
-        Returns:
-            np.array: The activation of each neuron in the layer
-        """
-        # compute the dot product and add bias
-        return np.add(np.dot(input_vector, self.weights), self.biases)
     
     def set_weights(self) -> None:
         """Generates randomly sampled 2d numpy ndarray starting weights using 
@@ -47,7 +32,13 @@ class FCLayer:
 
         Note: A different initialization should be used with hidden activation functions other than ReLU
         """
-        self.weights = np.random.randn(self.layer_width, self.input_size) * np.sqrt(2/(self.input_size))
+        self.weights = np.random.randn(self.input_size, self.layer_width) * np.sqrt(2/(self.input_size))
+
+    def set_biases(self) -> None:
+        """Generates a zeroed 1d numpy ndarray of biases
+        """
+        # one bias value for each neuron in the layer
+        self.biases = np.zeros((self.layer_width), dtype=float)
 
     def set_weights(self, weights: np.ndarray) -> None:
         """Sets weights for the layer.
@@ -55,15 +46,31 @@ class FCLayer:
         Args:
             weights (np.ndarray): 2d array of weight values. Each array is assigned to one unit.
         """
-
         self.weights = weights
 
-
     def set_biases(self, biases: np.ndarray) -> None:
-        """Sets biases layer.
+        """Sets biases for the layer.
 
         Args:
             biases (np.ndarray): 1d array of bias values. Each array is assigned to one unit.
         """
-        
         self.biases = biases
+
+    def forward(self, input_vector: np.ndarray) -> np.ndarray:
+        """Defines a forward pass through the layer and its neurons
+
+        Args:
+            x (np.array): 1d vector of weighted sums from the previous layer
+
+        Returns:
+            np.array: The activation of each neuron in the layer
+        """
+        
+        if self.weights is None: raise ValueError("Weights have not been set")
+        if self.biases is None: raise ValueError("Biases have not been set")
+        if input_vector.size != self.input_size: raise ValueError("Input vector size does not match layer input")
+        # compute the dot product and add bias
+        weighted_sum = np.dot(self.weights, input_vector)
+        print(f"Weighted Sum Shape: {weighted_sum.shape}")
+        print(f"Biases Shape: {self.biases.shape}")
+        return np.add(weighted_sum, self.biases)

@@ -30,7 +30,7 @@ class Network:
         self.hidden_layers = []
             
         # first layer takes the input size as as the number of neurons
-        self.hidden_layers.append(FCLayer(input_size, hidden_widths[0]))
+        self.hidden_layers.append(FCLayer(input_size=self.input_size, layer_width=self.hidden_widths[0]))
 
         # previous_layer_width is the input size for the current layer
         previous_layer_width = hidden_widths[0]
@@ -39,20 +39,37 @@ class Network:
             previous_layer_width = width
         
         # output layer takes
-        self.hidden_layers.append(FCLayer(hidden_widths[-1], output_size))
-        print("Network successfully initialized.")
-
-
-    def load_weights_biases(self, path: str) -> None:
-        """Loads and sets the model's weights and bias values
+        self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size))
+        
+    def load_weights(self, path: str) -> None:
+        """Loads and sets the model's weight values
 
         Args:
-            path (str): The path to the file that contains the weights
+            path (str): The path to the directory that contains the weights csv files
         """
         for i, layer in enumerate(self.hidden_layers):
-            layer.set_weights(pd.read_csv(f"{path}\\fc{i+1}_weights.csv"))
-            layer.set_biases(pd.read_csv(f"{path}\\fc{i+1}_biases.csv"))
-        
+            layer.set_weights(pd.read_csv(f"{path}\\fc{i+1}_weights.csv", header=None).to_numpy())
+            print(f"Weights data type: {type(layer.weights)}")
+            print(f"Weights shape: {layer.weights.shape}")
+        print("Weights successfully loaded.")
+
+    def load_biases(self, path: str) -> None:
+        """Loads and sets the model's bias values
+
+        Args:
+            path (str): The path to the directory that contains the bias csv files
+        """
+        for i, layer in enumerate(self.hidden_layers):
+            layer.set_biases(pd.read_csv(f"{path}\\fc{i+1}_biases.csv", header=None).to_numpy())
+            print(f"Biases data type: {type(layer.biases)}")
+            print(f"Biases shape: {layer.biases.shape}")
+        print("Biases successfully loaded.")
+
+    def set_parameters(self) -> None:
+        """Sets the weights (randomly) and biases (zeroed) for each layer in the network"""
+        for layer in self.hidden_layers:
+            layer.set_weights()
+            layer.set_biases()
 
     def save_weights(self, path: str) -> None:
         """Saves the current weights of a network to the specified path
@@ -60,13 +77,13 @@ class Network:
         Args:
             path (str): The path to save the weights to
         """
-
+        ...
 
     def forward(self, x: np.array) -> np.ndarray:
         """Defines a forward pass over the network
 
         Args:
-            x (np.array): The inputted feature vector
+            x (np.array): The inputted 1d feature vector
 
         Returns:
             np.ndarray: The output vector from the network. 
@@ -80,14 +97,6 @@ class Network:
 
         return x
 
-
-def main():
-    # Test the load_weights function
-    net = Network(1, 1, [5]*3)
-    print(net.load_weights(".\\model_params\\fc2_weights.csv"))
-
-if __name__ == "__main__":
-    main()
 
 
 
