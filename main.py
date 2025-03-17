@@ -68,7 +68,7 @@ def main():
     print("Evaluating network...")
     correct = 0
     for image, label in testing_pairs:
-        prediction = net.forward(image.flatten().reshape(input_size, 1)) # I think that this is wrong. 
+        prediction = net.forward(image.flatten())
         if np.argmax(prediction) == label:
             correct += 1
 

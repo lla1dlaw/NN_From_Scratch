@@ -82,9 +82,10 @@ class Network:
         Returns:
             np.ndarray: The output vector from the network. 
         """
-        for layer in self.hidden_layers[:-1]:
+        for i, layer in enumerate(self.hidden_layers[:-1]):
             x = layer.forward(x)
             x = Activation.relu(x)
+            
         x = self.hidden_layers[-1].forward(x)
         return x
 
