@@ -48,7 +48,7 @@ class Network:
             path (str): The path to the directory that contains the weights csv files
         """
         for i, layer in enumerate(self.hidden_layers):
-            layer.set_weights(pd.read_csv(f"{path}\\fc{i+1}_weights.csv", header=None).to_numpy())
+            layer.set_weights(pd.read_csv(f"{path}\\layers.{i}.weight.csv", header=None).to_numpy())
             print(f"Weights data type: {type(layer.weights)}")
             print(f"Weights shape: {layer.weights.shape}")
         print("Weights successfully loaded.")
@@ -60,7 +60,7 @@ class Network:
             path (str): The path to the directory that contains the bias csv files
         """
         for i, layer in enumerate(self.hidden_layers):
-            layer.set_biases(pd.read_csv(f"{path}\\fc{i+1}_biases.csv", header=None).to_numpy())
+            layer.set_biases(pd.read_csv(f"{path}\\layers.{i}.bias.csv", header=None).to_numpy())
             print(f"Biases data type: {type(layer.biases)}")
             print(f"Biases shape: {layer.biases.shape}")
         print("Biases successfully loaded.")

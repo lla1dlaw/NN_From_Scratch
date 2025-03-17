@@ -59,8 +59,8 @@ def main():
 
     # initialize network
     net = Network(input_size, num_outputs, network_dimensions)
-    net.load_weights(".\\model_params")
-    net.load_biases(".\\model_params")
+    net.load_weights(".\\params")
+    net.load_biases(".\\params")
     print("Network successfully initialized.")
 
     # evaluate network
