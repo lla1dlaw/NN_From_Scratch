@@ -54,24 +54,25 @@ def main():
     # network hyperparameters
     input_size = training_pairs[0][0].size # should be 784 for 28 * 28 images in mnist
     num_outputs = 10 # 10 possible outputs 
-    network_dimensions = [10]*3 # 10x3 symmetrical network
+    network_dimensions = [10]*3 # 10x3 symmetrical hidden layers
     network_dimensions.append(num_outputs)
 
     # initialize network
     net = Network(input_size, num_outputs, network_dimensions)
     net.load_weights(".\\params")
     net.load_biases(".\\params")
-    print("Network successfully initialized.")
-
+    print("\nNetwork successfully initialized.")
+    print(f"\nNetwork Shape:\n{net}")
+    
     # evaluate network
     print("Evaluating network...")
     correct = 0
     for image, label in testing_pairs:
-        prediction = net.forward(image.flatten())
-        if prediction == label:
+        prediction = net.forward(image.flatten().reshape(input_size, 1)) # I think that this is wrong. 
+        if np.argmax(prediction) == label:
             correct += 1
 
-    print(f"Network Accuracy: {correct/len(testing_pairs):.5f}")
+    print(f"Network Accuracy: {correct/len(testing_pairs)*100:.5f}%")
 
 if __name__ == "__main__":
     main()

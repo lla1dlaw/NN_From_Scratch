@@ -70,7 +70,4 @@ class FCLayer:
         if self.biases is None: raise ValueError("Biases have not been set")
         if input_vector.size != self.input_size: raise ValueError("Input vector size does not match layer input")
         # compute the dot product and add bias
-        weighted_sum = np.dot(self.weights, input_vector)
-        print(f"Weighted Sum Shape: {weighted_sum.shape}")
-        print(f"Biases Shape: {self.biases.shape}")
-        return np.add(weighted_sum, self.biases)
+        return np.dot(self.weights, input_vector) + self.biases

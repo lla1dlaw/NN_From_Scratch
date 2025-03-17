@@ -9,68 +9,68 @@ import numpy as np
 
 class Activation:
 
-    @staticmethod
-    def softmax(x: np.array) -> np.array:
+    @classmethod
+    def softmax(cls, x: np.ndarray) -> np.ndarray:
         """Softmax activation function (used after the output layer)
 
         Args:
-            x (np.array): The vector of values that needs to be converted into a probability distribution
+            x (np.ndarray): The vector of values that needs to be converted into a probability distribution
 
         Returns:
-            np.array: Probability distribution representing the network's confidence in each output value
+            np.ndarray: Probability distribution representing the network's confidence in each output value
         """
         # leverage numpy's vectorized operations to increase efficiency and speed of calculation
-        stable_vector = np.exp(x - np.max(x)) # subtract the largest value from every element in the array (prevents overflow/underflow errors)
+        stable_vector = np.exp(x - np.max(x)) # subtract the largest value from every element in the ndarray (prevents overflow/underflow errors)
         return stable_vector/stable_vector.sum()
 
-    @staticmethod 
-    def relu(x: np.array) -> np.array:
+    @classmethod
+    def relu(cls, x: np.ndarray) -> np.ndarray:
         """Relu activation over an inputted vector
 
         Args:
-            x (np.array): array of values to activate
+            x (np.ndarray): ndarray of values to activate
 
         Returns:
-            np.array: array of activated values
+            np.ndarray: ndarray of activated values
         """
         activation_function = np.vectorize(Activation.scalar_relu)
         return activation_function(x)
 
-    @staticmethod 
-    def sigmoid(x: np.array) -> np.array:
+    @classmethod 
+    def sigmoid(cls, x: np.ndarray) -> np.ndarray:
         """Sigmoid activation over an inputted vector
 
         Args:
-            x (np.array): array of values to activate
+            x (np.ndarray): ndarray of values to activate
 
         Returns:
-            np.array: array of activated values
+            np.ndarray: ndarray of activated values
         """
         activation_function = np.vectorize(Activation.scalar_sigmoid)
         return activation_function(x)
     
-    @staticmethod 
-    def tanh(x: np.array) -> np.array:
+    @classmethod 
+    def tanh(cls, x: np.ndarray) -> np.ndarray:
         """hyperbolic tangent activation over an inputted vector
 
         Args:
-            x (np.array): array of values to activate
+            x (np.ndarray): ndarray of values to activate
 
         Returns:
-            np.array: array of activated values
+            np.ndarray: ndarray of activated values
         """
         activation_function = np.vectorize(Activation.scalar_tanh)
         return activation_function(x)
     
-    @staticmethod 
-    def softplus(x: np.array) -> np.array:
+    @classmethod 
+    def softplus(cls, x: np.ndarray) -> np.ndarray:
         """softplus activation over an inputted vector
 
         Args:
-            x (np.array): array of values to activate
+            x (np.ndarray): ndarray of values to activate
 
         Returns:
-            np.array: array of activated values
+            np.ndarray: ndarray of activated values
         """
         activation_function = np.vectorize(Activation.scalar_softplus)
         return activation_function(x)

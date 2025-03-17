@@ -6,8 +6,8 @@ Purpose: A neural network
 """
 
 from FCLayer import FCLayer
+from Activation import Activation
 import numpy as np
-import Activation
 import pandas as pd 
 
 
@@ -49,9 +49,6 @@ class Network:
         """
         for i, layer in enumerate(self.hidden_layers):
             layer.set_weights(pd.read_csv(f"{path}\\layers.{i}.weight.csv", header=None).to_numpy())
-            print(f"Weights data type: {type(layer.weights)}")
-            print(f"Weights shape: {layer.weights.shape}")
-        print("Weights successfully loaded.")
 
     def load_biases(self, path: str) -> None:
         """Loads and sets the model's bias values
@@ -61,9 +58,6 @@ class Network:
         """
         for i, layer in enumerate(self.hidden_layers):
             layer.set_biases(pd.read_csv(f"{path}\\layers.{i}.bias.csv", header=None).to_numpy())
-            print(f"Biases data type: {type(layer.biases)}")
-            print(f"Biases shape: {layer.biases.shape}")
-        print("Biases successfully loaded.")
 
     def set_parameters(self) -> None:
         """Sets the weights (randomly) and biases (zeroed) for each layer in the network"""
@@ -79,7 +73,7 @@ class Network:
         """
         ...
 
-    def forward(self, x: np.array) -> np.ndarray:
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """Defines a forward pass over the network
 
         Args:
@@ -88,15 +82,15 @@ class Network:
         Returns:
             np.ndarray: The output vector from the network. 
         """
-        for layer in self.hidden_layers:
+        for layer in self.hidden_layers[:-1]:
             x = layer.forward(x)
             x = Activation.relu(x)
-        
-        x = self.output_layer.forward(x)
-        x = Activation.softmax(x)
-
+        x = self.hidden_layers[-1].forward(x)
         return x
 
 
-
-
+    def __str__(self):
+        res = ""
+        for i, layer in enumerate(self.hidden_layers):
+            res += f"Layer {i}: {layer.weights.shape}\n"
+        return res
