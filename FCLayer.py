@@ -68,6 +68,7 @@ class FCLayer:
         
         if self.weights is None: raise ValueError("Weights have not been set")
         if self.biases is None: raise ValueError("Biases have not been set")
-        #if input_vector.size != self.input_size: raise ValueError("Input vector size does not match layer input")
         # compute the dot product and add bias
-        return np.dot(self.weights,input_vector) + self.biases.flatten()
+        res = np.dot(self.weights, input_vector) + self.biases
+        #print(f"Layer Shape: {res.shape}")
+        return res

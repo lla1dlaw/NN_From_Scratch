@@ -9,10 +9,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
 import tensorflow as tf
 from Network import Network
 
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
+
 
 def load_data(path: str):
     """Loads csv data into a 2d numpy ndarray
@@ -42,8 +43,16 @@ def show_number(image: np.ndarray, predicted_label: int, actual_label: int) -> N
     plt.title(f"Predicted Label: {predicted_label}\nTrue Label: {actual_label}")
     plt.imshow(image, cmap='gray')
     plt.show()
-    
 
+def evaluate_network(net, data):
+    correct = 0
+    for image, label in data:
+        prediction = net.forward(np.array([image.flatten()]).T)
+        if np.argmax(prediction) == label:
+            correct += 1
+    print(f"Prediction Shape: {prediction.shape}")
+    return correct/len(data)*100
+    
 def main():
     # load data
     (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
@@ -65,15 +74,17 @@ def main():
     print("\nNetwork successfully initialized.")
     print(f"\nNetwork Shape:\n{net}")
     
+    # single pass (for debugging)
+
+    # image = np.array([testing_pairs[0][0].flatten()]).T
+
+    # print(f"Image Shape: {image.shape}")
+    # net.forward(image)
+
     # evaluate network
     print("Evaluating network...")
-    correct = 0
-    for image, label in testing_pairs:
-        prediction = net.forward(image.flatten())
-        if np.argmax(prediction) == label:
-            correct += 1
-
-    print(f"Network Accuracy: {correct/len(testing_pairs)*100:.5f}%")
+    accuracy = evaluate_network(net, testing_pairs)
+    print(f"Network Accuracy: {accuracy:.5f}%")
 
 if __name__ == "__main__":
     main()
