@@ -9,9 +9,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
 import tensorflow as tf
 from Network import Network
+
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
 
 def load_data(path: str):
     """Loads csv data into a 2d numpy ndarray
