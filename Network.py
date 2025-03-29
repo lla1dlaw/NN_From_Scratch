@@ -17,7 +17,7 @@ class Network:
 
         Args:
             input_size (int): the dimensionality of input vector
-            output_size (int): the dimensionality of output vector 
+            output_size (int): the dimensionality of output vector
             hidden_widths (list[int]): describes the shape of the network. Each layer's width is represented by each integer value.
 
         Note:
@@ -48,7 +48,17 @@ class Network:
             path (str): The path to the directory that contains the weights csv files
         """
         for i, layer in enumerate(self.hidden_layers):
-            layer.set_weights(pd.read_csv(f"{path}\\layers.{i}.weight.csv", header=None).to_numpy())
+            # layer.set_weights(pd.read_csv(f"{path}\\layers.{i}.weight.csv", header=None).to_numpy())
+            with open(f"{path}\\layers.{i}.weight.csv", 'r') as file:
+                lines = file.readlines()
+                file.close()
+            
+            lines = [line.strip().split(',') for line in lines]
+            weights = [[float(weight) for weight in line] for line in lines]
+            layer_weights = np.array(weights)
+            layer.set_weights(layer_weights)
+                
+
 
     def load_biases(self, path: str) -> None:
         """Loads and sets the model's bias values
@@ -82,11 +92,12 @@ class Network:
         Returns:
             np.ndarray: The output vector from the network. 
         """
-        for i, layer in enumerate(self.hidden_layers[:-1]):
+        for layer in self.hidden_layers[:-1]:
             x = layer.forward(x)
             x = Activation.relu(x)
             
         x = self.hidden_layers[-1].forward(x)
+        x = Activation.softmax(x)
         return x
 
 

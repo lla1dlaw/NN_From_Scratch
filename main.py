@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import os
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
 import tensorflow as tf
+from cv2 import resize
 from Network import Network
 
 
@@ -50,6 +51,7 @@ def evaluate_network(net, data):
         prediction = net.forward(np.array([image.flatten()]).T)
         if np.argmax(prediction) == label:
             correct += 1
+    print(f"Number of Samples: {len(data)}")
     print(f"Prediction Shape: {prediction.shape}")
     return correct/len(data)*100
     
@@ -63,24 +65,17 @@ def main():
 
     # network hyperparameters
     input_size = training_pairs[0][0].size # should be 784 for 28 * 28 images in mnist
-    num_outputs = 10 # 10 possible outputs 
+    num_outputs = 10 # 10 possible outputs
     network_dimensions = [10]*3 # 10x3 symmetrical hidden layers
     network_dimensions.append(num_outputs)
 
     # initialize network
     net = Network(input_size, num_outputs, network_dimensions)
-    net.load_weights(".\\params")
-    net.load_biases(".\\params")
+    net.load_weights(".\\torch-params")
+    net.load_biases(".\\torch-params")
     print("\nNetwork successfully initialized.")
     print(f"\nNetwork Shape:\n{net}")
     
-    # single pass (for debugging)
-
-    # image = np.array([testing_pairs[0][0].flatten()]).T
-
-    # print(f"Image Shape: {image.shape}")
-    # net.forward(image)
-
     # evaluate network
     print("Evaluating network...")
     accuracy = evaluate_network(net, testing_pairs)
