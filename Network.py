@@ -8,7 +8,7 @@ Purpose: A neural network
 from FCLayer import FCLayer
 from Activation import Activation
 import numpy as np
-import pandas as pd
+import pandas as pd 
 
 
 class Network:
