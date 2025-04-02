@@ -5,6 +5,7 @@ Date: February 23, 2025
 Purpose: Creates a collection of neurons stored inside a numpy array
 """
 
+from matplotlib.pylab import f
 import numpy as np
 
 class FCLayer:
@@ -19,26 +20,26 @@ class FCLayer:
         """
         self.input_size = input_size
         self.layer_width = layer_width
-        self.weights = None # must be explicitly initialized
-        self.biases = None # must be explicitly initialized
+        # self.weights = self.get_random_weights()
+        self.weights = 0.01 * np.random.randn(self.input_size, self.layer_width)
+        self.biases = self.get_zeroed_biases()
 
         if input_size < 1: raise ValueError("input_size must be at least 1")
         if layer_width < 1: raise ValueError("layer_width must be at least 1")
 
     
-    def set_weights(self) -> None:
-        """Generates randomly sampled 2d numpy ndarray starting weights using 
+    def get_random_weights(self) -> None:
+        """Generates randomly sampled 2d numpy ndarray starting weights using
         the He-et-al weight initialization method and stores it in self.weights
 
         Note: A different initialization should be used with hidden activation functions other than ReLU
         """
-        self.weights = np.random.randn(self.input_size, self.layer_width) * np.sqrt(2/(self.input_size))
+        return np.random.randn(self.input_size, self.layer_width) * np.sqrt(2/(self.input_size))
 
-    def set_biases(self) -> None:
+    def get_zeroed_biases(self) -> None:
         """Generates a zeroed 1d numpy ndarray of biases
         """
-        # one bias value for each neuron in the layer
-        self.biases = np.zeros((self.layer_width), dtype=float)
+        return np.zeros((1, self.layer_width), dtype=float)
 
     def set_weights(self, weights: np.ndarray) -> None:
         """Sets weights for the layer.
@@ -69,6 +70,5 @@ class FCLayer:
         if self.weights is None: raise ValueError("Weights have not been set")
         if self.biases is None: raise ValueError("Biases have not been set")
         # compute the dot product and add bias
-        res = np.dot(self.weights, input_vector) + self.biases
-        #print(f"Layer Shape: {res.shape}")
+        res = np.dot(input_vector, self.weights) + self.biases
         return res

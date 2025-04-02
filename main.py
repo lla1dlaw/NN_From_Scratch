@@ -13,6 +13,7 @@ os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
 import tensorflow as tf
 from cv2 import resize
 from Network import Network
+from Loss import CrossEntropyLoss
 
 
 
@@ -48,7 +49,7 @@ def show_number(image: np.ndarray, predicted_label: int, actual_label: int) -> N
 def evaluate_network(net, data):
     correct = 0
     for image, label in data:
-        prediction = net.forward(np.array([image.flatten()]).T)
+        prediction = net.forward(np.array([image.flatten()]))
         if np.argmax(prediction) == label:
             correct += 1
     print(f"Number of Samples: {len(data)}")
@@ -71,15 +72,30 @@ def main():
 
     # initialize network
     net = Network(input_size, num_outputs, network_dimensions)
-    net.load_weights(".\\torch-params")
-    net.load_biases(".\\torch-params")
-    print("\nNetwork successfully initialized.")
+    loss = CrossEntropyLoss()
+    # net.load_weights(".\\torch-params")
+    # net.load_biases(".\\torch-params")
+    print("\nNetwork initialized.")
     print(f"\nNetwork Shape:\n{net}")
     
     # evaluate network
-    print("Evaluating network...")
-    accuracy = evaluate_network(net, testing_pairs)
-    print(f"Network Accuracy: {accuracy:.5f}%")
+    # print("Evaluating network...")
+    # accuracy = evaluate_network(net, testing_pairs)
+    # print(f"Network Accuracy: {accuracy:.5f}%")
+
+    preds = []
+    labels = []
+    
+    for image, label in testing_pairs[:5]: # first 5 images
+        pred = net.forward(np.array([image.flatten()]))
+        print(f"Prediction Shape: {pred.shape}")
+        print(f"Predicted Label: {np.argmax(pred)}\nTrue Label: {label}\n")
+        preds.append(pred)
+        labels.append(label)
+        
+    loss_value = loss.calculate_loss(np.array([preds]), np.array(labels))
+    print(f"Loss Value: {loss_value}")
+    
 
 if __name__ == "__main__":
     main()

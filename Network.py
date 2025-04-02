@@ -69,12 +69,6 @@ class Network:
         for i, layer in enumerate(self.hidden_layers):
             layer.set_biases(pd.read_csv(f"{path}\\layers.{i}.bias.csv", header=None).to_numpy())
 
-    def set_parameters(self) -> None:
-        """Sets the weights (randomly) and biases (zeroed) for each layer in the network"""
-        for layer in self.hidden_layers:
-            layer.set_weights()
-            layer.set_biases()
-
     def save_weights(self, path: str) -> None:
         """Saves the current weights of a network to the specified path
 

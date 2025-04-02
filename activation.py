@@ -20,8 +20,8 @@ class Activation:
             np.ndarray: Probability distribution representing the network's confidence in each output value
         """
         # leverage numpy's vectorized operations to increase efficiency and speed of calculation
-        stable_vector = np.exp(x - np.max(x)) # subtract the largest value from every element in the ndarray (prevents overflow/underflow errors)
-        return stable_vector/stable_vector.sum()
+        stable_vector = np.exp(x - np.max(x, axis=1, keepdims=True))
+        return stable_vector/(np.sum(stable_vector, axis=1, keepdims=True)) 
 
     @classmethod
     def relu(cls, x: np.ndarray) -> np.ndarray:
