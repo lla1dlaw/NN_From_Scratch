@@ -7,9 +7,10 @@ Purpose: Creates a collection of neurons stored inside a numpy array
 
 from matplotlib.pylab import f
 import numpy as np
+from Activation import ReLU, Softmax
 
 class FCLayer:
-    def __init__(self, input_size: int, layer_width: int, starting_bias: int = 0) -> None:
+    def __init__(self, input_size: int, layer_width: int, activation, starting_bias: int = 0) -> None:
         """Constructor
 
         Args:
@@ -18,6 +19,8 @@ class FCLayer:
             starting_bias (int, optional): The starting bias value for each of the neurons in the layer. Defaults to 0.
 
         """
+        self.activation = activation
+
         self.input_size = input_size
         self.layer_width = layer_width
 
@@ -97,3 +100,4 @@ class FCLayer:
         self.bias_gradients = np.sum(derivatives, axis=0, keepdims=True)
         self.input_gradients = np.dot(derivatives, self.weights.T)
 
+        

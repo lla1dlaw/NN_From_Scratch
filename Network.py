@@ -7,9 +7,10 @@ Purpose: A neural network
 
 from FCLayer import FCLayer
 from Activation import Softmax, ReLU
+from Optimizer import SGD
+from Softmax_Crossentropy import Softmax_Categorical_CrossEntropy
 import numpy as np
 import pandas as pd 
-from Optimizer import SGD
 
 
 class Network:
@@ -25,24 +26,27 @@ class Network:
             The depth of the network is derived from the length of the hidden_widths list
         """
 
+        self.hidden_activation = ReLU
+        self.activation_loss = Softmax_Categorical_CrossEntropy
+
         self.input_size = input_size
         self.output_size = output_size
         self.hidden_widths = hidden_widths
         self.hidden_layers = []
             
         # first layer takes the input size as as the number of neurons
-        self.hidden_layers.append(FCLayer(input_size=self.input_size, layer_width=self.hidden_widths[0]))
-
+        self.hidden_layers.append(FCLayer(input_size=self.input_size, layer_width=self.hidden_widths[0]), self.hidden_activation)
         # previous_layer_width is the input size for the current layer
         previous_layer_width = hidden_widths[0]
         for width in hidden_widths[1:-1]:
-            self.hidden_layers.append(FCLayer(input_size=previous_layer_width, layer_width=width))
+            self.hidden_layers.append(FCLayer(input_size=previous_layer_width, layer_width=width), self.hidden_activation)
             previous_layer_width = width
+        # output layer
+        self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size), self.activation_loss)
+
         
-        # output layer takes
-        self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size))
     
-    def train(self, data: np.ndarray, optimizer) -> tuple[float, float]:
+    def train(self, data: np.ndarray, epochs, optimizer, batch_size: int = None) -> tuple[float, float]:
         """Training loop for the network
 
         Args:
@@ -52,6 +56,43 @@ class Network:
         Returns:
             tuple[float, float]: _description_
         """
+        if batch_size is None:
+            batch_size = len(data)
+
+        for epoch in range(epochs):
+
+            self.backward() # propogate gradient
+
+            if optimizer.decay_rate:
+                optimizer.decay_learning_rate() # decay learning rate
+            
+            for layer in self.layers:
+                optimizer.update_params(layer) # update parameters
+                
+            optimizer.step()
+            
+
+    def backward(self, predictions: np.ndarray, labels: np.ndarray) -> None:
+        """Backpropogates gradients through the network.
+
+        Args:
+            predictions (np.ndarray): The output confidence predictions from the network. 
+            labels (np.ndarray): Ground truth predictions of each class
+        """     
+        
+        # propogate gradients backwards through the network layers and activation functions
+        for i, layer in enumerate(reversed(self.layers)):
+            if i == 0:
+                activation_grad = layer.activation.backward(predictions, labels)
+            else:
+                activation_grad = layer.activation.backward(layer_grad)
+
+            layer_grad = layer.backward(activation_grad)
+    
+
+
+
+
 
         
     def load_weights(self, path: str) -> None:
@@ -90,21 +131,19 @@ class Network:
         """
         ...
 
-    def forward(self, x: np.ndarray) -> np.ndarray:
+    def forward(self, x: np.ndarray) -> tuple[np.ndarray, float]:
         """Defines a forward pass over the network
 
         Args:
             x (np.array): The inputted 1d feature vector
 
         Returns:
-            np.ndarray: The output vector from the network. 
+            tuple[np.ndarray, float]: (Network output predictions, average loss value)
         """
-        for layer in self.hidden_layers[:-1]:
+        for layer in self.hidden_layers:
             x = layer.forward(x)
-            x = ReLU.relu(x)
-            
-        x = self.hidden_layers[-1].forward(x)
-        x = Softmax.softmax(x)
+            x = layer.activation.forward()
+
         return x
 
 

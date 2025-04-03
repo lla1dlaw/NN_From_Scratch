@@ -14,7 +14,7 @@ class Softmax:
 
 
     @classmethod
-    def softmax(cls, x: np.ndarray) -> np.ndarray:
+    def forward(cls, x: np.ndarray) -> np.ndarray:
         """Softmax activation function (used after the output layer)
 
         Args:
@@ -55,7 +55,7 @@ class ReLU:
     inputs = None # intialized in the forward pass
 
     @classmethod
-    def relu(cls, x: np.ndarray) -> np.ndarray:
+    def forward(cls, x: np.ndarray) -> np.ndarray:
         """Relu activation over an inputted vector
 
         Args:
@@ -65,9 +65,7 @@ class ReLU:
             np.ndarray: ndarray of activated values
         """
 
-        cls.inputs = x
-        activation_function = np.vectorize(cls.scalar_relu)
-        return activation_function(x)
+        return np.maximize(0, x)
 
     @classmethod
     def backward(cls, derivatives: np.ndarary) -> np.ndarray:
@@ -86,15 +84,5 @@ class ReLU:
     
     # ------------------ activation functions for scalar inputs -------------------------
 
-    @staticmethod 
-    def scalar_relu(x: float) -> float:
-        """Relu activation function
-
-        Args:
-            x (float): input into the activation function
-
-        Returns:
-            float: output of the activation function
-        """
-        return np.maximum(0, x)
+   
 
