@@ -3,7 +3,7 @@ import numpy as np
 from Activation import Activation
 from Loss import CrossEntropyLoss
 
-class Softmax_Categorical_CrossEntropy():
+class Softmax_Categorical_CrossEntropy:
     activation = Activation.softmax()
     loss = CrossEntropyLoss()
 
