@@ -34,14 +34,14 @@ class Network:
         self.hidden_layers = []
             
         # first layer takes the input size as as the number of neurons
-        self.hidden_layers.append(FCLayer(input_size=self.input_size, layer_width=self.hidden_widths[0]), self.hidden_activation)
+        self.hidden_layers.append(FCLayer(input_size=self.input_size, layer_width=self.hidden_widths[0], activation=self.hidden_activation))
         # previous_layer_width is the input size for the current layer
         previous_layer_width = hidden_widths[0]
         for width in hidden_widths[1:-1]:
-            self.hidden_layers.append(FCLayer(input_size=previous_layer_width, layer_width=width), self.hidden_activation)
+            self.hidden_layers.append(FCLayer(input_size=previous_layer_width, layer_width=width, activation=self.hidden_activation))
             previous_layer_width = width
         # output layer
-        self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size), self.activation_loss)
+        self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size, activation=self.activation_loss))
 
     
     def forward(self, x: np.ndarray) -> tuple[np.ndarray, float]:
@@ -96,9 +96,6 @@ class Network:
             batch_size = len(training_data)
         
         num_batches = batch_size//len(training_data)
-
-        training_data = np.array([(image.flatten(), label) for image, label in training_data])
-
         
         for epoch in range(epochs):
             if scramble_data:
@@ -108,6 +105,7 @@ class Network:
             
 
             for batch in batches:
+                # index batches using numpy advanced indexing
                 batch_images, batch_labels = batch[:, :-1], batch[:, -1]
                 predictions, loss = self.forward(batch_images)
 
@@ -126,7 +124,7 @@ class Network:
                 batch_labels = np.argmax(batch_labels, axis=1) if len(batch_labels.shape) == 1 else batch_labels
                 accuracy = np.mean(one_hot_preds==batch_labels)
             print(f"Epoch: {epoch}, Acc: {accuracy}, Loss: {loss}, LR: {optimizer.learning_rate}")
-    
+        print(f"\nFinal Accuracy: {accuracy}\nFinal Loss: {loss}")
 
     def load_weights(self, path: str) -> None:
         """Loads and sets the model's weight values

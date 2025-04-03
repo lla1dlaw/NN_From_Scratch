@@ -72,6 +72,11 @@ def load_data():
     """
     print("\nLoading data...")
     (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
+    train_shape = train_images.shape
+    test_shape = test_images.shape
+    # flatten images
+    train_images = train_images.reshape(train_shape[0], -1)
+    test_images = test_images.reshape(test_shape[0], -1)
     training_pairs, testing_pairs = list(zip(train_images, train_labels)), list(zip(test_images, test_labels))
     print("\nData Loaded.")
     return training_pairs, testing_pairs
@@ -119,6 +124,8 @@ def main():
         batch_size=batch_size, 
         scramble_data=True
         )
+
+
     
 
    
