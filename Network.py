@@ -6,8 +6,7 @@ Purpose: A neural network
 """
 
 from FCLayer import FCLayer
-from Activation import Softmax, ReLU
-from Optimizer import SGD
+from Activation import ReLU
 from Softmax_Crossentropy import Softmax_Categorical_CrossEntropy
 import numpy as np
 import pandas as pd 
@@ -44,33 +43,22 @@ class Network:
         # output layer
         self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size), self.activation_loss)
 
-        
     
-    def train(self, data: np.ndarray, epochs, optimizer, batch_size: int = None) -> tuple[float, float]:
-        """Training loop for the network
+    def forward(self, x: np.ndarray) -> tuple[np.ndarray, float]:
+        """Defines a forward pass over the network
 
         Args:
-            data (np.ndarray): _description_
-            optimizer (_type_): _description_
+            x (np.array): The inputted 1d feature vector
 
         Returns:
-            tuple[float, float]: _description_
+            tuple[np.ndarray, float]: (Network output predictions, average loss value)
         """
-        if batch_size is None:
-            batch_size = len(data)
-
-        for epoch in range(epochs):
-
-            self.backward() # propogate gradient
-
-            if optimizer.decay_rate:
-                optimizer.decay_learning_rate() # decay learning rate
-            
-            for layer in self.layers:
-                optimizer.update_params(layer) # update parameters
-                
-            optimizer.step()
-            
+        loss = -1
+        for layer in self.hidden_layers:
+            x = layer.forward(x)
+            x, loss = layer.activation.forward()
+        return x, loss
+    
 
     def backward(self, predictions: np.ndarray, labels: np.ndarray) -> None:
         """Backpropogates gradients through the network.
@@ -90,11 +78,56 @@ class Network:
             layer_grad = layer.backward(activation_grad)
     
 
+    def train(self, training_pairs: np.ndarray, epochs, optimizer, batch_size: int = None, scramble_data: bool = False) -> None:
+        """Training loop for the network
 
+        Args:
+            data (np.ndarray): _description_
+            optimizer (_type_): _description_
 
+        Returns:
+            tuple[float, float]: _description_
+        """
+        
+        # copy training data
+        training_data = training_pairs.copy()
 
+        if batch_size is None:
+            batch_size = len(training_data)
+        
+        num_batches = batch_size//len(training_data)
+
+        training_data = np.array([(image.flatten(), label) for image, label in training_data])
 
         
+        for epoch in range(epochs):
+            if scramble_data:
+                np.random.shuffle(training_data)
+            
+            batches = np.split(training_data, num_batches)
+            
+
+            for batch in batches:
+                batch_images, batch_labels = batch[:, :-1], batch[:, -1]
+                predictions, loss = self.forward(batch_images)
+
+                self.backward(predictions, batch_labels) # propogate gradient
+
+                if optimizer.decay_rate:
+                    optimizer.decay_learning_rate() # decay learning rate
+                
+                for layer in self.layers:
+                    optimizer.update_params(layer) # update network parameters
+                    
+                optimizer.step() # step optimizer
+
+                one_hot_preds = np.argmax(predictions, axis=1)
+
+                batch_labels = np.argmax(batch_labels, axis=1) if len(batch_labels.shape) == 1 else batch_labels
+                accuracy = np.mean(one_hot_preds==batch_labels)
+            print(f"Epoch: {epoch}, Acc: {accuracy}, Loss: {loss}, LR: {optimizer.learning_rate}")
+    
+
     def load_weights(self, path: str) -> None:
         """Loads and sets the model's weight values
 
@@ -130,21 +163,6 @@ class Network:
             path (str): The path to save the weights to
         """
         ...
-
-    def forward(self, x: np.ndarray) -> tuple[np.ndarray, float]:
-        """Defines a forward pass over the network
-
-        Args:
-            x (np.array): The inputted 1d feature vector
-
-        Returns:
-            tuple[np.ndarray, float]: (Network output predictions, average loss value)
-        """
-        for layer in self.hidden_layers:
-            x = layer.forward(x)
-            x = layer.activation.forward()
-
-        return x
 
 
     def __str__(self):

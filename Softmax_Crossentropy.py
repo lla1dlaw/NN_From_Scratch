@@ -1,11 +1,11 @@
 
 import numpy as np
-from Activation import Activation
+from Activation import Softmax
 from Loss import CrossEntropyLoss
 
 class Softmax_Categorical_CrossEntropy:
-    activation = Activation.softmax()
-    loss = CrossEntropyLoss()
+    activation = Softmax
+    loss = CrossEntropyLoss
     
     ouptut = None # None intially, but will be changed to the output of the activation function
     input_gradients = None # calculated in backwards pass
@@ -21,7 +21,7 @@ class Softmax_Categorical_CrossEntropy:
         Returns:
             np.ndarray: The loss vector
         """
-        cls.output = Activation.softmax(y_hat) # save output
+        cls.output = cls.activation.forward(y_hat) # save output
         return cls.output, cls.loss.calculate_loss(cls.output, y) # return output for network and loss
     
     @classmethod

@@ -5,17 +5,16 @@ Date: February 22, 2025
 Purpose: Driver for MNist prediction using Neural networks
 """
 
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
 
-import test
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
-import tensorflow as tf
-from cv2 import resize
 from Network import Network
 from Loss import CrossEntropyLoss
+from Optimizer import SGD
 
 
 
@@ -29,11 +28,6 @@ def load_data(path: str):
         _type_: numpy array of numpy array's of extracted values
     """
     return pd.read_csv(path).values
-
-
-def train_network():
-    ...
-
 
 
 def show_number(image: np.ndarray, predicted_label: int, actual_label: int) -> None:
@@ -70,22 +64,31 @@ def evaluate_network(net: np.ndarray, data: list[tuple[list[int], int]]) -> floa
         labels = np.argmax(labels, axis=1)
     return np.mean(predicted_labels == labels)
 
-    # correct = 0
-    # for image, label in data:
-    #     prediction = net.forward(np.array([image.flatten()]))
-    #     if np.argmax(prediction) == label:
-    #         correct += 1
-    # print(f"Number of Samples: {len(data)}")
-    # print(f"Prediction Shape: {prediction.shape}")
-    # return correct/len(data)*100
+def load_data():
+    """Loads and returns mnist data
+
+    Returns:
+        _type_: _description_
+    """
+    print("\nLoading data...")
+    (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
+    training_pairs, testing_pairs = list(zip(train_images, train_labels)), list(zip(test_images, test_labels))
+    print("\nData Loaded.")
+    return training_pairs, testing_pairs
+
     
 def main():
-    # load data
-    (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
+    # training parameters
+    num_epochs = 10
+    batch_size = 100
 
-    # labels are the second item in each pair
-    training_pairs = list(zip(train_images, train_labels))
-    testing_pairs = list(zip(test_images, test_labels))
+    # optimizer parameters
+    initial_learning_rate = 1.0
+    lr_decay = 0.001
+    lr_decay_step = 1
+    momentum = 0.9
+
+    training_pairs, testing_pairs = load_data()
 
     # network hyperparameters
     input_size = training_pairs[0][0].size # should be 784 for 28 * 28 images in mnist
@@ -95,30 +98,31 @@ def main():
 
     # initialize network
     net = Network(input_size, num_outputs, network_dimensions)
-    loss = CrossEntropyLoss()
-    # net.load_weights(".\\torch-params")
-    # net.load_biases(".\\torch-params")
     print("\nNetwork initialized.")
     print(f"\nNetwork Shape:\n{net}")
+
+    # initialize optimizer
+    optimizer = SGD
+    optimizer.init(
+        learning_rate=initial_learning_rate,
+        decay_rate=lr_decay,
+        decay_step=lr_decay_step,
+        momentum=momentum
+        )
+
+    print("\nTraining Network...")
+    # train network
+    net.train(
+        training_pairs=training_pairs, 
+        epochs=num_epochs, 
+        optimizer=optimizer, 
+        batch_size=batch_size, 
+        scramble_data=True
+        )
     
-    # evaluate network
-    # print("Evaluating network...")
-    # accuracy = evaluate_network(net, testing_pairs)
-    # print(f"Network Accuracy: {accuracy:.5f}%")
 
-    flattened_images = np.array([image.flatten() for image in test_images[:11]])
-    labels = np.array(test_labels[:11])
-
-    print(f"Flattened Images Shape: {flattened_images.shape}")
-    print(f"Labels Shape: {labels.shape}")
-
-    preds = net.forward(flattened_images)
    
-    loss_value = loss.calculate_loss(preds, labels)
-    print(f"Loss Value: {loss_value}")
-
-    accuracy = evaluate_network(net, testing_pairs)
-    print(f"Network Accuracy: {accuracy*100:.5f}%")
+    
     
 
 if __name__ == "__main__":

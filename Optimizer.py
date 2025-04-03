@@ -8,21 +8,24 @@ class SGD:
     learning_rate = None # current calculated learning rate 
     decay_rate = None # must be explicitly set to intialize learning rate decay
     decay_step = None
+    momentum = None
     num_iterations = 0 # number of iterations since the last decay
 
     @classmethod 
-    def init(cls, learning_rate: float, decay_rate: float = None, decay_step: int = None) -> None:
+    def init(cls, learning_rate: float, decay_rate: float = None, decay_step: int = None, momentum: float = None) -> None:
         """Initializes the SGD optimizer with the given learning rate and decay rate.
 
         Args:
             learning_rate (float): The learning rate for the SGD optimizer
             decay_rate (float, optional): The decay rate for the SGD optimizer. Defaults to None.
             decay_step (int, optional): The decay step for the SGD optimizer. Defaults to None.
+            momentum (float, optional): Learning rate momentum.
         """
         cls.starting_learning_rate = learning_rate
         cls.learning_rate = learning_rate
         cls.decay_rate = decay_rate
         cls.decay_step = decay_step
+        cls.momentum = momentum
 
 
     @classmethod
@@ -42,7 +45,7 @@ class SGD:
 
     @classmethod
     def update_params(cls, layer: FCLayer) -> None:
-        """Updates the parameters of the layer using SGD
+        """Updates the parameters of the layer using SGD, with or without momentum
 
         Args:
             layer (FCLayer): The layer to update
@@ -52,8 +55,23 @@ class SGD:
             current_frame = currentframe()
             raise ValueError(f"Learning rate must be set before calling method <{current_frame.f_code.co_name}>\nEnsure that init() has been called.")
         
-        layer.weights -= cls.learning_rate * layer.d_weights
-        layer.biases -= cls.learning_rate * layer.d_biases
+        if cls.momentum: # if a momentum value has been specified
+            if not hasattr(layer, "weight_momentums"):
+                layer.weight_momentums = np.zeros_like(layer.weights)
+                layer.bias_momentums = np.zeros_like(layer.biases)
+            
+            weights_delta = cls.momentum * layer.weight_momentums - cls.learning_rate * layer.weight_gradients
+            layer.weight_momentums = weights_delta
+            biases_delta = cls.momentum * layer.bias_momentums - cls.learning_rate * layer.bias_gradients
+            layer.bias_momentums = biases_delta
+
+        else: # no momentum specified, use vanilla SGD
+            weights_delta = -cls.learning_rate * layer.d_weights
+            biases_delta = -cls.learning_rate * layer.d_biases
+
+        # update weights and biases for that layer
+        layer.weights += weights_delta
+        layer.biases += biases_delta
 
 
     @classmethod

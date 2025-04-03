@@ -26,7 +26,9 @@ class Softmax:
         # leverage numpy's vectorized operations to increase efficiency and speed of calculation
         stable_vector = np.exp(x - np.max(x, axis=1, keepdims=True))
         output = stable_vector/(np.sum(stable_vector, axis=1, keepdims=True)) 
-        return output
+        return output, 0 
+        # second value is a placeholder 
+        # (allows for easy iteration when loss is required in forward pass)
     
     @classmethod
     def backward(cls, derivatives: np.ndarray) -> np.ndarray:
@@ -65,10 +67,12 @@ class ReLU:
             np.ndarray: ndarray of activated values
         """
 
-        return np.maximize(0, x)
+        return np.maximize(0, x), 0 
+        # second value is a placeholder 
+        # (allows for easy iteration when loss is required in forward pass)
 
     @classmethod
-    def backward(cls, derivatives: np.ndarary) -> np.ndarray:
+    def backward(cls, derivatives: np.ndarray) -> np.ndarray:
         """Defines a backward pass through the ReLU function. 
 
         Args:
