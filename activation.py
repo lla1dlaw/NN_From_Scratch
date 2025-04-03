@@ -7,9 +7,11 @@ Purpose: Collection of activation functions for neural networks
 
 import numpy as np
 
-class Activation:
+class Softmax:
     # empty intially, but will be changed to the output of the activation function
-    softmax_outputs = np.array([]) 
+    inputs = None
+    input_gradients = None
+
 
     @classmethod
     def softmax(cls, x: np.ndarray) -> np.ndarray:
@@ -24,9 +26,33 @@ class Activation:
         # leverage numpy's vectorized operations to increase efficiency and speed of calculation
         stable_vector = np.exp(x - np.max(x, axis=1, keepdims=True))
         output = stable_vector/(np.sum(stable_vector, axis=1, keepdims=True)) 
-        cls.softmax_outputs = output
         return output
     
+    @classmethod
+    def backward(cls, derivatives: np.ndarray) -> np.ndarray:
+        """Defines a backwards pass through the softmax activation function. 
+        (If softmax is applied to outputs of the network, use the combined loss and activation backwards method, 
+        as it is more efficient)
+
+        Args:
+            derivatives (np.ndarray): The gradients from the previous layer in the backwards pass.
+
+        Returns:
+            np.ndarray: The gradients with respect to the forward pass inputs into the softmax function. 
+        """
+        cls.input_gradients = np.empty_like(derivatives)
+
+        for i, (output, deriv) in enumerate(zip(cls.outputs, derivatives)):
+            output = output.reshape(-1, 1)
+            jacob_mat = np.diagflat(output) - np.dot(output, output.T)
+            cls.input_gradients[i] = np.dot(jacob_mat, deriv)
+
+        return cls.input_gradients
+
+    
+class ReLU:
+    input_gradients = None # gradients with respect to the forward pass inputs (intialized during the backwards pass)
+    inputs = None # intialized in the forward pass
 
     @classmethod
     def relu(cls, x: np.ndarray) -> np.ndarray:
@@ -38,9 +64,25 @@ class Activation:
         Returns:
             np.ndarray: ndarray of activated values
         """
-        activation_function = np.vectorize(Activation.scalar_relu)
+
+        cls.inputs = x
+        activation_function = np.vectorize(cls.scalar_relu)
         return activation_function(x)
 
+    @classmethod
+    def backward(cls, derivatives: np.ndarary) -> np.ndarray:
+        """Defines a backward pass through the ReLU function. 
+
+        Args:
+            derivatives (np.ndarray): The gradients of the previous layer in the backwards pass through the network. 
+
+        Returns:
+            np.ndarray: The gradients of the ReLU function with respect to the forward pass inputs.
+        """
+        cls.input_gradients = derivatives.copy()
+        # assigns gradient to 1 if the input is positive. 0 otherwise
+        cls.input_gradients[cls.inputs <= 0] = 0
+        return cls.input_gradients
     
     # ------------------ activation functions for scalar inputs -------------------------
 

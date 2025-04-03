@@ -6,9 +6,10 @@ Purpose: A neural network
 """
 
 from FCLayer import FCLayer
-from Activation import Activation
+from Activation import Softmax, ReLU
 import numpy as np
 import pandas as pd 
+from Optimizer import SGD
 
 
 class Network:
@@ -40,6 +41,18 @@ class Network:
         
         # output layer takes
         self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size))
+    
+    def train(self, data: np.ndarray, optimizer) -> tuple[float, float]:
+        """Training loop for the network
+
+        Args:
+            data (np.ndarray): _description_
+            optimizer (_type_): _description_
+
+        Returns:
+            tuple[float, float]: _description_
+        """
+
         
     def load_weights(self, path: str) -> None:
         """Loads and sets the model's weight values
@@ -88,10 +101,10 @@ class Network:
         """
         for layer in self.hidden_layers[:-1]:
             x = layer.forward(x)
-            x = Activation.relu(x)
+            x = ReLU.relu(x)
             
         x = self.hidden_layers[-1].forward(x)
-        x = Activation.softmax(x)
+        x = Softmax.softmax(x)
         return x
 
 

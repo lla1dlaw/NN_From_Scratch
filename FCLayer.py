@@ -20,9 +20,17 @@ class FCLayer:
         """
         self.input_size = input_size
         self.layer_width = layer_width
-        # self.weights = self.get_random_weights()
+
+        self.inputs = None # stores the inputs into the layer for use in backwards pass
+
+        # set default weight and bias values
         self.weights = 0.01 * np.random.randn(self.input_size, self.layer_width)
         self.biases = self.get_zeroed_biases()
+
+        # create an empty gradient array for both weights and biases
+        self.weight_gradients = np.empty_like(self.weights)
+        self.bias_gradients = np.empty_like(self.biases)
+        self.input_gradients = np.empty((input_size,))
 
         if input_size < 1: raise ValueError("input_size must be at least 1")
         if layer_width < 1: raise ValueError("layer_width must be at least 1")
@@ -66,9 +74,26 @@ class FCLayer:
         Returns:
             np.array: The activation of each neuron in the layer
         """
+
+        self.inputs = input_vector
         
         if self.weights is None: raise ValueError("Weights have not been set")
         if self.biases is None: raise ValueError("Biases have not been set")
         # compute the dot product and add bias
         res = np.dot(input_vector, self.weights) + self.biases
         return res
+    
+    def backward(self, derivatives: np.ndarray) -> np.ndarray:
+        """Defines a backwards pass through each of the layer functions. 
+
+        Args:
+            derivatives (np.ndarray): Gradients from the previous layer in the backwards pass
+
+        Returns:
+            np.ndarray: Gradients for this layer
+        """
+
+        self.weight_gradients = np.dot(self.inputs.T, derivatives)
+        self.bias_gradients = np.sum(derivatives, axis=0, keepdims=True)
+        self.input_gradients = np.dot(derivatives, self.weights.T)
+
