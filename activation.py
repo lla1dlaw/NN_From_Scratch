@@ -8,6 +8,8 @@ Purpose: Collection of activation functions for neural networks
 import numpy as np
 
 class Activation:
+    # empty intially, but will be changed to the output of the activation function
+    softmax_outputs = np.array([]) 
 
     @classmethod
     def softmax(cls, x: np.ndarray) -> np.ndarray:
@@ -21,7 +23,10 @@ class Activation:
         """
         # leverage numpy's vectorized operations to increase efficiency and speed of calculation
         stable_vector = np.exp(x - np.max(x, axis=1, keepdims=True))
-        return stable_vector/(np.sum(stable_vector, axis=1, keepdims=True)) 
+        output = stable_vector/(np.sum(stable_vector, axis=1, keepdims=True)) 
+        cls.softmax_outputs = output
+        return output
+    
 
     @classmethod
     def relu(cls, x: np.ndarray) -> np.ndarray:
@@ -36,44 +41,6 @@ class Activation:
         activation_function = np.vectorize(Activation.scalar_relu)
         return activation_function(x)
 
-    @classmethod 
-    def sigmoid(cls, x: np.ndarray) -> np.ndarray:
-        """Sigmoid activation over an inputted vector
-
-        Args:
-            x (np.ndarray): ndarray of values to activate
-
-        Returns:
-            np.ndarray: ndarray of activated values
-        """
-        activation_function = np.vectorize(Activation.scalar_sigmoid)
-        return activation_function(x)
-    
-    @classmethod 
-    def tanh(cls, x: np.ndarray) -> np.ndarray:
-        """hyperbolic tangent activation over an inputted vector
-
-        Args:
-            x (np.ndarray): ndarray of values to activate
-
-        Returns:
-            np.ndarray: ndarray of activated values
-        """
-        activation_function = np.vectorize(Activation.scalar_tanh)
-        return activation_function(x)
-    
-    @classmethod 
-    def softplus(cls, x: np.ndarray) -> np.ndarray:
-        """softplus activation over an inputted vector
-
-        Args:
-            x (np.ndarray): ndarray of values to activate
-
-        Returns:
-            np.ndarray: ndarray of activated values
-        """
-        activation_function = np.vectorize(Activation.scalar_softplus)
-        return activation_function(x)
     
     # ------------------ activation functions for scalar inputs -------------------------
 
@@ -88,40 +55,4 @@ class Activation:
             float: output of the activation function
         """
         return np.maximum(0, x)
-
-    @staticmethod 
-    def scalar_sigmoid(x: float) -> float:
-        """sigmoid activation function
-
-        Args:
-            x (float): input into the activation function
-
-        Returns:
-            float: output of the activation function
-        """
-        return 1/(1 + np.exp(-x))
-    
-    @staticmethod 
-    def scalar_tanh(x: float) -> float:
-        """hyperbolic tangent activation function
-
-        Args:
-            x (float): input into the activation function
-
-        Returns:
-            float: output of the activation function
-        """
-        return np.tanh(x)
-    
-    @staticmethod 
-    def scalar_softplus(x: float) -> float:
-        """softplus activation function
-
-        Args:
-            x (float): input into the activation function
-
-        Returns:
-            float: output of the activation function
-        """
-        return np.log(1 + np.exp(x))
 

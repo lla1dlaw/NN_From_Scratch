@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+
+import test
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
 import tensorflow as tf
 from cv2 import resize
@@ -46,15 +48,36 @@ def show_number(image: np.ndarray, predicted_label: int, actual_label: int) -> N
     plt.imshow(image, cmap='gray')
     plt.show()
 
-def evaluate_network(net, data):
-    correct = 0
-    for image, label in data:
-        prediction = net.forward(np.array([image.flatten()]))
-        if np.argmax(prediction) == label:
-            correct += 1
-    print(f"Number of Samples: {len(data)}")
-    print(f"Prediction Shape: {prediction.shape}")
-    return correct/len(data)*100
+def evaluate_network(net: np.ndarray, data: list[tuple[list[int], int]]) -> float:
+    """Evaluates the network's performance on the supplied data.
+    The data is expected to be a list of tuples with the first element being a 2d array of pixels and the second element being the label.
+
+    Args:
+        net (Network): Network being evaluated.
+        data (list of tuples): list of pairs of input data and labels. 
+
+    Returns:
+        float: Accuracy of the network on the scale 0-1.
+    """
+
+    images = np.array([pair[0].flatten() for pair in data])
+    labels = np.array([pair[1] for pair in data])
+
+    predctions = net.forward(images)
+    predicted_labels = np.argmax(predctions, axis=1)
+
+    if len(labels.shape) == 2:
+        labels = np.argmax(labels, axis=1)
+    return np.mean(predicted_labels == labels)
+
+    # correct = 0
+    # for image, label in data:
+    #     prediction = net.forward(np.array([image.flatten()]))
+    #     if np.argmax(prediction) == label:
+    #         correct += 1
+    # print(f"Number of Samples: {len(data)}")
+    # print(f"Prediction Shape: {prediction.shape}")
+    # return correct/len(data)*100
     
 def main():
     # load data
@@ -83,18 +106,19 @@ def main():
     # accuracy = evaluate_network(net, testing_pairs)
     # print(f"Network Accuracy: {accuracy:.5f}%")
 
-    preds = []
-    labels = []
-    
-    for image, label in testing_pairs[:5]: # first 5 images
-        pred = net.forward(np.array([image.flatten()]))
-        print(f"Prediction Shape: {pred.shape}")
-        print(f"Predicted Label: {np.argmax(pred)}\nTrue Label: {label}\n")
-        preds.append(pred)
-        labels.append(label)
-        
-    loss_value = loss.calculate_loss(np.array([preds]), np.array(labels))
+    flattened_images = np.array([image.flatten() for image in test_images[:11]])
+    labels = np.array(test_labels[:11])
+
+    print(f"Flattened Images Shape: {flattened_images.shape}")
+    print(f"Labels Shape: {labels.shape}")
+
+    preds = net.forward(flattened_images)
+   
+    loss_value = loss.calculate_loss(preds, labels)
     print(f"Loss Value: {loss_value}")
+
+    accuracy = evaluate_network(net, testing_pairs)
+    print(f"Network Accuracy: {accuracy*100:.5f}%")
     
 
 if __name__ == "__main__":

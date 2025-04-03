@@ -20,6 +20,8 @@ def main():
     predictions = net.forward(X)
     
     print(predictions[:5])
+    print(f"y shape: {y.shape}")
+    print(f"pred shape: {predictions.shape}")
     loss_value = loss.calculate_loss(predictions, y)
     print(f"Loss Value: {loss_value}")
 
