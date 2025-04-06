@@ -44,7 +44,7 @@ class Network:
         self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size, activation=self.activation_loss))
 
     
-    def forward(self, x: np.ndarray) -> tuple[np.ndarray, float]:
+    def forward(self, x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float]:
         """Defines a forward pass over the network
 
         Args:
@@ -54,9 +54,12 @@ class Network:
             tuple[np.ndarray, float]: (Network output predictions, average loss value)
         """
         loss = -1
-        for layer in self.hidden_layers:
+        for i, layer in enumerate(self.hidden_layers):
             x = layer.forward(x)
-            x, loss = layer.activation.forward()
+            if i == len(self.hidden_layers) - 1:
+                x, loss = layer.activation.forward(x, y)
+            else: 
+                x = layer.activation.forward(x)[0]
         return x, loss
     
 
@@ -76,9 +79,24 @@ class Network:
                 activation_grad = layer.activation.backward(layer_grad)
 
             layer_grad = layer.backward(activation_grad)
-    
 
-    def train(self, training_pairs: np.ndarray, epochs, optimizer, batch_size: int = None, scramble_data: bool = False) -> None:
+    def shuffle_arrays(self, arrays: list[np.ndarray]) -> None:
+        """Shuffles arrays in-place, in the same order, along axis=0.
+
+        Args:
+            arrays (list[np.ndarray]): List of NumPy arrays to shuffle.
+            set_seed (float): Seed value if >= 0; otherwise, a random seed is used.
+        """
+        
+        assert all(len(arr) == len(arrays[0]) for arr in arrays) 
+        seed = np.random.randint(0, 2**(32 - 1) - 1) # generate a random seed 
+
+        for arr in arrays:
+            rstate = np.random.RandomState(seed)
+            rstate.shuffle(arr)
+        
+
+    def train(self, training_images: np.ndarray, training_labels: np.ndarray, epochs, optimizer, batch_size: int = None, scramble_data: bool = False) -> None:
         """Training loop for the network
 
         Args:
@@ -90,26 +108,26 @@ class Network:
         """
         
         # copy training data
-        training_data = training_pairs.copy()
+        train_imgs = training_images.copy()
+        train_labels = training_labels.copy()
 
         if batch_size is None:
             batch_size = len(training_data)
         
-        num_batches = batch_size//len(training_data)
+        num_batches = len(train_imgs)//batch_size # integer division to get clean subsets of the training data
         
         for epoch in range(epochs):
             if scramble_data:
-                np.random.shuffle(training_data)
+                data_list = list((train_imgs, train_labels)) # data needs to be scrambled before each epoch
+                self.shuffle_arrays(data_list)
             
-            batches = np.split(training_data, num_batches)
-            
+            batched_imgs = np.split(train_imgs, num_batches)
+            batched_labels = np.split(train_labels, num_batches)
 
-            for batch in batches:
-                # index batches using numpy advanced indexing
-                batch_images, batch_labels = batch[:, :-1], batch[:, -1]
-                predictions, loss = self.forward(batch_images)
+            for img_batch, label_batch in zip(batched_imgs, batched_labels):
+                predictions, loss = self.forward(img_batch, label_batch) # forward pass
 
-                self.backward(predictions, batch_labels) # propogate gradient
+                self.backward(predictions, label_batch) # propogate gradient
 
                 if optimizer.decay_rate:
                     optimizer.decay_learning_rate() # decay learning rate
@@ -121,8 +139,9 @@ class Network:
 
                 one_hot_preds = np.argmax(predictions, axis=1)
 
-                batch_labels = np.argmax(batch_labels, axis=1) if len(batch_labels.shape) == 1 else batch_labels
-                accuracy = np.mean(one_hot_preds==batch_labels)
+                # ensure labels are one-hot encoded
+                true_labels = np.argmax(label_batch, axis=1) if len(label_batch.shape) == 2 else label_batch 
+                accuracy = np.mean(one_hot_preds==true_labels)
             print(f"Epoch: {epoch}, Acc: {accuracy}, Loss: {loss}, LR: {optimizer.learning_rate}")
         print(f"\nFinal Accuracy: {accuracy}\nFinal Loss: {loss}")
 

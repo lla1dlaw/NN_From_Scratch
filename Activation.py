@@ -67,7 +67,7 @@ class ReLU:
             np.ndarray: ndarray of activated values
         """
 
-        return np.maximize(0, x), 0 
+        return np.maximum(0, x), 0 
         # second value is a placeholder 
         # (allows for easy iteration when loss is required in forward pass)
 
