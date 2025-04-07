@@ -9,12 +9,11 @@ import numpy as np
 
 class Softmax:
     # empty intially, but will be changed to the output of the activation function
-    inputs = None
-    input_gradients = None
+    def __init__(self):
+        self.inputs = None
+        self.input_gradients = None
 
-
-    @classmethod
-    def forward(cls, x: np.ndarray) -> np.ndarray:
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """Softmax activation function (used after the output layer)
 
         Args:
@@ -23,15 +22,15 @@ class Softmax:
         Returns:
             np.ndarray: Probability distribution representing the network's confidence in each output value
         """
+        self.inputs = x.copy()
         # leverage numpy's vectorized operations to increase efficiency and speed of calculation
         stable_vector = np.exp(x - np.max(x, axis=1, keepdims=True))
         output = stable_vector/(np.sum(stable_vector, axis=1, keepdims=True)) 
-        return output, 0 
+        return output 
         # second value is a placeholder 
         # (allows for easy iteration when loss is required in forward pass)
     
-    @classmethod
-    def backward(cls, derivatives: np.ndarray) -> np.ndarray:
+    def backward(self, derivatives: np.ndarray) -> np.ndarray:
         """Defines a backwards pass through the softmax activation function. 
         (If softmax is applied to outputs of the network, use the combined loss and activation backwards method, 
         as it is more efficient)
@@ -42,22 +41,22 @@ class Softmax:
         Returns:
             np.ndarray: The gradients with respect to the forward pass inputs into the softmax function. 
         """
-        cls.input_gradients = np.empty_like(derivatives)
+        self.input_gradients = np.empty_like(derivatives)
 
-        for i, (output, deriv) in enumerate(zip(cls.outputs, derivatives)):
+        for i, (output, deriv) in enumerate(zip(self.outputs, derivatives)):
             output = output.reshape(-1, 1)
             jacob_mat = np.diagflat(output) - np.dot(output, output.T)
-            cls.input_gradients[i] = np.dot(jacob_mat, deriv)
+            self.input_gradients[i] = np.dot(jacob_mat, deriv)
 
-        return cls.input_gradients
+        return self.input_gradients
 
     
 class ReLU:
-    input_gradients = None # gradients with respect to the forward pass inputs (intialized during the backwards pass)
-    inputs = None # intialized in the forward pass
+    def __init__(self):
+        self.input_gradients = None # gradients with respect to the forward pass inputs (intialized during the backwards pass)
+        self.inputs = None # intialized in the forward pass
 
-    @classmethod
-    def forward(cls, x: np.ndarray) -> np.ndarray:
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """Relu activation over an inputted vector
 
         Args:
@@ -66,13 +65,10 @@ class ReLU:
         Returns:
             np.ndarray: ndarray of activated values
         """
+        self.inputs = x.copy()
+        return np.maximum(0, x)
 
-        return np.maximum(0, x), 0 
-        # second value is a placeholder 
-        # (allows for easy iteration when loss is required in forward pass)
-
-    @classmethod
-    def backward(cls, derivatives: np.ndarray) -> np.ndarray:
+    def backward(self, derivatives: np.ndarray) -> np.ndarray:
         """Defines a backward pass through the ReLU function. 
 
         Args:
@@ -81,12 +77,10 @@ class ReLU:
         Returns:
             np.ndarray: The gradients of the ReLU function with respect to the forward pass inputs.
         """
-        cls.input_gradients = derivatives.copy()
+        self.input_gradients = derivatives.copy()
         # assigns gradient to 1 if the input is positive. 0 otherwise
-        cls.input_gradients[cls.inputs <= 0] = 0
-        return cls.input_gradients
+        self.input_gradients[self.inputs <= 0] = 0
+        return self.input_gradients
     
-    # ------------------ activation functions for scalar inputs -------------------------
-
    
 

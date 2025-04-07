@@ -1,10 +1,11 @@
 import numpy as np
 
 class CrossEntropyLoss:
-    output = np.array([]) # empty intially, but will be changed to the output of the activation function
+    def __init__(self) -> None:
+        self.output = None # empty intially, but will be changed to the output of the activation function
     
-    @classmethod
-    def forward(cls, y_hat: np.ndarray, y: np.ndarray) -> np.ndarray:
+    
+    def forward(self, y_hat: np.ndarray, y: np.ndarray) -> np.ndarray:
         """Calculates the cross entropy loss between the output and target vectors
 
         Args:
@@ -14,7 +15,6 @@ class CrossEntropyLoss:
         Returns:
             np.ndarray: The loss vector
         """
-
 
         # ensures non-zero or one values in y_hat for log calculation
         clipped_y_hat = np.clip(y_hat, 1e-10, 1 - 1e-10)
@@ -27,10 +27,10 @@ class CrossEntropyLoss:
         else:
             raise ValueError("Invalid shape for target vector in loss calcyulation.")
 
-        return -np.log(correct_class_confidences)
+        self.output = -np.log(correct_class_confidences)
+        return self.output
         
-
-    def calculate_loss(cls, y_hat: np.ndarray, y: np.ndarray) -> float:
+    def calculate_loss(self, y_hat: np.ndarray, y: np.ndarray) -> float:
         """Calculates the average cross entropy loss between the output and target vectors
 
         Args:
@@ -41,7 +41,7 @@ class CrossEntropyLoss:
             float: the average loss value
         """
 
-        return np.mean(cls.forward(y_hat, y))
+        return np.mean(self.forward(y_hat, y))
     
     
     

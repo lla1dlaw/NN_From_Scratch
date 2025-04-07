@@ -4,14 +4,14 @@ from Activation import Softmax
 from Loss import CrossEntropyLoss
 
 class Softmax_Categorical_CrossEntropy:
-    activation = Softmax
-    loss = CrossEntropyLoss
-    
-    ouptut = None # None intially, but will be changed to the output of the activation function
-    input_gradients = None # calculated in backwards pass
+    def __init__(self) -> None:
+        self.activation = Softmax()
+        self.loss = CrossEntropyLoss()
+        self.ouptut = None # None intially, but will be changed to the output of the activation function
+        self.input_gradients = None # calculated in backwards pass
 
-    @classmethod
-    def forward(cls, y_hat: np.ndarray, y: np.ndarray) -> float:
+    
+    def forward(self, y_hat: np.ndarray, y: np.ndarray) -> float:
         """Calculates the cross entropy loss between the output and target vectors
 
         Args:
@@ -21,11 +21,11 @@ class Softmax_Categorical_CrossEntropy:
         Returns:
             np.ndarray: The loss vector
         """
-        cls.output = cls.activation.forward(y_hat) # save output
-        return cls.output, cls.loss.calculate_loss(cls.output, y) # return output for network and loss
+        self.output = self.activation.forward(y_hat) # save output
+        return self.output, self.loss.calculate_loss(y_hat, y) # return output for network and loss
     
-    @classmethod
-    def backward(cls, derivatives: np.ndarray, y: np.ndarray) -> float:
+    
+    def backward(self, derivatives: np.ndarray, y: np.ndarray) -> float:
         """Calculates the derivative of the loss function with respect to the output of the network
 
         Args:
@@ -38,13 +38,14 @@ class Softmax_Categorical_CrossEntropy:
         num_samples = len(derivatives)
 
         # make sure that labels are discrete if they are currently one-hot encoded
-        if len(y.shape) == 1:
+        if len(y.shape) == 2:
             y = np.argmax(y, axis=1)
         
         derivs = derivatives.copy()
         derivs[range(num_samples), y] -= 1
         derivs /= num_samples # normalize gradient
-        return derivs
+        self.input_gradients = derivs # save gradients for the next layer in the network
+        return self.input_gradients
     
 
 

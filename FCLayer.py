@@ -5,12 +5,10 @@ Date: February 23, 2025
 Purpose: Creates a collection of neurons stored inside a numpy array
 """
 
-from matplotlib.pylab import f
 import numpy as np
-from Activation import ReLU, Softmax
 
 class FCLayer:
-    def __init__(self, input_size: int, layer_width: int, activation, starting_bias: int = 0) -> None:
+    def __init__(self, input_size: int, layer_width: int, activation) -> None:
         """Constructor
 
         Args:
@@ -99,5 +97,6 @@ class FCLayer:
         self.weight_gradients = np.dot(self.inputs.T, derivatives)
         self.bias_gradients = np.sum(derivatives, axis=0, keepdims=True)
         self.input_gradients = np.dot(derivatives, self.weights.T)
+        return self.input_gradients
 
         

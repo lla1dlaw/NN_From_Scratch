@@ -4,6 +4,7 @@ Author: Liam Laidlaw
 Date: February 22, 2025
 Purpose: Driver for MNist prediction using Neural networks
 """
+import pretty_errors
 
 import os
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Suppresses warning from Tensor Flow
@@ -14,8 +15,6 @@ import matplotlib.pyplot as plt
 
 from Network import Network
 from Optimizer import SGD
-
-
 
 def load_data(path: str):
     """Loads csv data into a 2d numpy ndarray
@@ -41,7 +40,7 @@ def show_number(image: np.ndarray, predicted_label: int, actual_label: int) -> N
     plt.imshow(image, cmap='gray')
     plt.show()
 
-def evaluate_network(net: np.ndarray, test_imgs: np.ndarray, test_labels: np.ndarray) -> float:
+def evaluate_network(net: Network, test_imgs: np.ndarray, test_labels: np.ndarray) -> float:
     """Evaluates the network's performance on the supplied data.
     The data is expected to be a list of tuples with the first element being a 2d array of pixels and the second element being the label.
 
@@ -53,23 +52,23 @@ def evaluate_network(net: np.ndarray, test_imgs: np.ndarray, test_labels: np.nda
         float: Accuracy of the network on the scale 0-1.
     """
 
-    predctions = net.forward(test_imgs)
-    predicted_labels = np.argmax(predctions, axis=1)
+    predictions, loss = net.forward(test_imgs, test_labels)
+    predicted_labels = np.argmax(predictions, axis=1)
 
     test_labels = np.argmax(test_labels, axis=1) if len(test_labels.shape) == 2 else test_labels        
-    return np.mean(predicted_labels == test_labels) # return mean accuracy
+    return np.mean(predicted_labels == test_labels), loss # return mean accuracy
 
 def load_data():
     """Loads and returns mnist data
 
     Returns:
-        _type_: _description_
+        tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: training and testing images and labels as numpy arrays
     """
     
     (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
+    # flatten images
     train_shape = train_images.shape
     test_shape = test_images.shape
-    # flatten images
     train_images = train_images.reshape(train_shape[0], -1)
     test_images = test_images.reshape(test_shape[0], -1)
     
@@ -79,11 +78,11 @@ def load_data():
 def main():
 
 # training parameters
-    num_epochs = 10
+    num_epochs = 100
     batch_size = 100
 
     # optimizer parameters
-    initial_learning_rate = 1.0
+    initial_learning_rate = 0.01
     lr_decay = 0.001
     lr_decay_step = 1
     momentum = 0.9
@@ -113,7 +112,7 @@ def main():
         decay_rate=lr_decay,
         decay_step=lr_decay_step,
         momentum=momentum
-        )
+    )
 
  
     # train network
@@ -130,8 +129,8 @@ def main():
 
     # evaluate network
     print("\nEvaluating Network...")
-    accuracy = evaluate_network(net, testing_images, testing_labels)
-    print(f"\nNetwork Training Accuracy: {accuracy*100:.5f}%")
+    accuracy, loss = evaluate_network(net, testing_images, testing_labels)
+    print(f"\nNetwork Test Accuracy: {accuracy*100:.5f}%\nNetwork Test Loss: {loss:.5f}")
 
 if __name__ == "__main__":
     main()
