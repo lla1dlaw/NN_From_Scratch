@@ -76,10 +76,9 @@ def load_data():
 
 
 def main():
-
-# training parameters
+    # training parameters
     num_epochs = 100
-    batch_size = 100
+    batch_size = 50
 
     # optimizer parameters
     initial_learning_rate = 0.01
@@ -114,18 +113,22 @@ def main():
         momentum=momentum
     )
 
- 
     # train network
     print("\nTraining Network...")
-    net.train(
+    accuracy_values, loss_values = net.train(
         training_images=training_images, 
         training_labels=training_labels,
         epochs=num_epochs, 
         optimizer=optimizer, 
         batch_size=batch_size, 
-        scramble_data=True
+        scramble_data=True,
+        epoch_print_step=5
         )
     print("\nNetwork Trained.")
+
+    plt.plot(loss_values)
+    plt.plot(accuracy_values)
+    plt.show()
 
     # evaluate network
     print("\nEvaluating Network...")

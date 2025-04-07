@@ -42,7 +42,6 @@ class Network:
             previous_layer_width = width
         # output layer
         self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size, activation=self.activation_loss()))
-
     
     def forward(self, x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float]:
         """Defines a forward pass over the network
@@ -85,7 +84,7 @@ class Network:
                 activation_grad = layer.activation.backward(layer_grad)
                 layer_grad = layer.backward(activation_grad)
 
-            
+
 
     def shuffle_arrays(self, array1: np.ndarray, array2: np.ndarray) -> None:
         """Shuffles arrays in-place, in the same order, along axis=0.
@@ -105,20 +104,28 @@ class Network:
         rstate.shuffle(array2)
         
 
-    def train(self, training_images: np.ndarray, training_labels: np.ndarray, epochs, optimizer, batch_size: int = None, scramble_data: bool = False) -> None:
+    def train(self, training_images: np.ndarray, training_labels: np.ndarray, epochs, optimizer, batch_size: int = None, scramble_data: bool = False, epoch_print_step: int = 1) -> None:
         """Training loop for the network
 
         Args:
-            data (np.ndarray): _description_
-            optimizer (_type_): _description_
-
+            training_images (np.ndarray): The training images to train the network on
+            training_labels (np.ndarray): The training labels to train the network on
+            epochs (int): The number of epochs to train the network for
+            optimizer (Optimizer): The optimizer to use for training the network
+            batch_size (int, optional): The number of samples to use in each batch. Defaults to None.
+            scramble_data (bool, optional): Whether to shuffle the training data before each epoch. Defaults to False.
+            epoch_print_step (int, optional): The number of epochs to wait before printing the training progress. Defaults to 1.
         Returns:
-            tuple[float, float]: _description_
+            tuple[np.ndarray, np.ndarray]: accuracy and loss values for each epoch
         """
         
         # copy training data
         train_imgs = training_images.copy()
         train_labels = training_labels.copy()
+
+        # used to plot accuracy and loss values
+        accuracy_values = []
+        loss_values = []
 
         if batch_size is None:
             batch_size = len(training_data)
@@ -154,8 +161,13 @@ class Network:
                 # ensure labels are one-hot encoded
                 true_labels = np.argmax(label_batch, axis=1) if len(label_batch.shape) == 2 else label_batch 
                 accuracy = np.mean(one_hot_preds==true_labels)
-            print(f"Epoch: {epoch+1}, Acc: {accuracy*100:.5f}, Loss: {loss}, LR: {optimizer.learning_rate}")
+
+            if (epoch+1) % epoch_print_step == 0:
+                print(f"Epoch: {epoch+1}, Acc: {accuracy*100:.5f}, Loss: {loss}, LR: {optimizer.learning_rate}")
+            accuracy_values.append(accuracy) # save accuracy for plotting
+            loss_values.append(loss) # save loss for plotting
         print(f"\nFinal Accuracy: {accuracy}\nFinal Loss: {loss}")
+        return np.array(accuracy_values), np.array(loss_values) # return accuracy and loss values for plotting
 
     def load_weights(self, path: str) -> None:
         """Loads and sets the model's weight values
@@ -174,7 +186,6 @@ class Network:
             layer_weights = np.array(weights)
             layer.set_weights(layer_weights)
                 
-
 
     def load_biases(self, path: str) -> None:
         """Loads and sets the model's bias values

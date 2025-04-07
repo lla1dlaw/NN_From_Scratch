@@ -98,5 +98,6 @@ class FCLayer:
         self.bias_gradients = np.sum(derivatives, axis=0, keepdims=True)
         self.input_gradients = np.dot(derivatives, self.weights.T)
         return self.input_gradients
+    
 
         
