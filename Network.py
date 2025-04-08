@@ -149,7 +149,8 @@ class Network:
                     optimizer.decay_learning_rate() # decay learning rate
                 
                 for layer in self.hidden_layers:
-                    optimizer.update_params(layer) # update network parameters
+                    if isinstance(layer, FCLayer): # only update weights and biases for FCLayers
+                        optimizer.update_params(layer)
                     
                 optimizer.step() # step optimizer
 
@@ -161,8 +162,10 @@ class Network:
 
             if (epoch+1) % epoch_print_step == 0:
                 print(f"Epoch: {epoch+1}, Acc: {accuracy*100:.5f}, Loss: {loss}, LR: {optimizer.learning_rate}")
+
             accuracy_values.append(accuracy) # save accuracy for plotting
             loss_values.append(loss) # save loss for plotting
+            
         print(f"\nFinal Accuracy: {accuracy}\nFinal Loss: {loss}")
         return np.array(accuracy_values), np.array(loss_values) # return accuracy and loss values for plotting
 
