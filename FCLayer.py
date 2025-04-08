@@ -8,7 +8,7 @@ Purpose: Creates a collection of neurons stored inside a numpy array
 import numpy as np
 
 class FCLayer:
-    def __init__(self, input_size: int, layer_width: int, activation) -> None:
+    def __init__(self, input_size: int, layer_width: int) -> None:
         """Constructor
 
         Args:
@@ -17,7 +17,6 @@ class FCLayer:
             starting_bias (int, optional): The starting bias value for each of the neurons in the layer. Defaults to 0.
 
         """
-        self.activation = activation
 
         self.input_size = input_size
         self.layer_width = layer_width
@@ -88,10 +87,10 @@ class FCLayer:
         """Defines a backwards pass through each of the layer functions. 
 
         Args:
-            derivatives (np.ndarray): Gradients from the previous layer in the backwards pass
+            derivatives (np.ndarray): Gradientt from that layer's activation function.
 
         Returns:
-            np.ndarray: Gradients for this layer
+            np.ndarray: Gradient for this layer
         """
 
         self.weight_gradients = np.dot(self.inputs.T, derivatives)

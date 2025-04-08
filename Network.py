@@ -33,15 +33,15 @@ class Network:
         self.hidden_widths = hidden_widths
         self.hidden_layers = []
             
-        # first layer takes the input size as as the number of neurons
-        self.hidden_layers.append(FCLayer(input_size=self.input_size, layer_width=self.hidden_widths[0], activation=self.hidden_activation()))
         # previous_layer_width is the input size for the current layer
-        previous_layer_width = hidden_widths[0]
-        for width in hidden_widths[1:-1]:
-            self.hidden_layers.append(FCLayer(input_size=previous_layer_width, layer_width=width, activation=self.hidden_activation()))
+        previous_layer_width = input_size
+        for width in hidden_widths[:-1]:
+            self.hidden_layers.append(FCLayer(input_size=previous_layer_width, layer_width=width))
+            self.hidden_layers.append(self.hidden_activation())
             previous_layer_width = width
         # output layer
-        self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size, activation=self.activation_loss()))
+        self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size))
+        self.hidden_layers.append(self.activation_loss())
     
     def forward(self, x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float]:
         """Defines a forward pass over the network
@@ -52,14 +52,13 @@ class Network:
         Returns:
             tuple[np.ndarray, float]: (Network output predictions, average loss value)
         """
-        loss = -1
+
         for i, layer in enumerate(self.hidden_layers):
-            x = layer.forward(x)
             # skip loss calculation unless on the last layer
             if i != len(self.hidden_layers) - 1: 
-                x = layer.activation.forward(x)
+                x = layer.forward(x)
             else: 
-                x, loss = layer.activation.forward(x, y)
+                x, loss = layer.forward(x, y)
         return x, loss
     
 
@@ -72,17 +71,15 @@ class Network:
         """     
         
         # propogate gradients backwards through the network layers and activation functions
-        layer_grad = None
-        activation_grad = None
+        gradient = None
 
         # iterate through layers in reverse order
+        # layers activation functions are represented as "layers"
         for i, layer in enumerate(reversed(self.hidden_layers)):
             if i == 0:
-                activation_grad = layer.activation.backward(predictions, labels)
-                layer_grad = layer.backward(activation_grad)
+                gradient = layer.backward(predictions, labels) # calculate gradient for the loss function
             else:
-                activation_grad = layer.activation.backward(layer_grad)
-                layer_grad = layer.backward(activation_grad)
+                gradient = layer.backward(gradient) # all other functions
 
 
 
