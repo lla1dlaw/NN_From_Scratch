@@ -13,7 +13,7 @@ import pandas as pd
 
 
 class Network:
-    def __init__(self, input_size: int, output_size: int, hidden_widths: list[int]) -> None:
+    def __init__(self, input_size: int, output_size: int, hidden_widths: list[int], hidden_activation=ReLU, output_activation=Softmax_Categorical_CrossEntropy) -> None:
         """Constructor for Network Class
 
         Args:
@@ -25,8 +25,8 @@ class Network:
             The depth of the network is derived from the length of the hidden_widths list
         """
 
-        self.hidden_activation = ReLU
-        self.activation_loss = Softmax_Categorical_CrossEntropy
+        self.hidden_activation = hidden_activation
+        self.output_activation = output_activation
 
         self.input_size = input_size
         self.output_size = output_size
@@ -41,7 +41,7 @@ class Network:
             previous_layer_width = width
         # output layer
         self.hidden_layers.append(FCLayer(input_size=self.hidden_widths[-1], layer_width=self.output_size))
-        self.hidden_layers.append(self.activation_loss())
+        self.hidden_layers.append(self.output_activation())
     
     def forward(self, x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float]:
         """Defines a forward pass over the network
@@ -165,7 +165,7 @@ class Network:
 
             accuracy_values.append(accuracy) # save accuracy for plotting
             loss_values.append(loss) # save loss for plotting
-            
+
         print(f"\nFinal Accuracy: {accuracy}\nFinal Loss: {loss}")
         return np.array(accuracy_values), np.array(loss_values) # return accuracy and loss values for plotting
 
@@ -208,5 +208,6 @@ class Network:
     def __str__(self):
         res = ""
         for i, layer in enumerate(self.hidden_layers):
-            res += f"Layer {i}: {layer.weights.shape}\n"
+            if isinstance(layer, FCLayer):
+                res += f"Layer {i}: {layer.weights.shape}\n"
         return res
